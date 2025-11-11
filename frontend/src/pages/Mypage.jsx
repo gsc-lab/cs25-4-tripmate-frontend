@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import "./Mypage.css"
 
 function Mypage() {
   const navigate = useNavigate();
@@ -72,19 +73,25 @@ function UserModal() {
   };
 
   return (
-    <>
-    <header>
-      <h1>마이페이지</h1>
-      <button onClick={Logout_func}>로그아웃</button>
-    </header>
-    <body>
-      <h2>생성된 여행 목록</h2>
-    </body>
-    <footer>
-      <button onClick={del_user}>회원 탈퇴</button>
-      <button onClick={() => navigate("/api/v1/regions")}>일정 생성</button>
-    </footer>
-    </>
+    <div className="frame">
+      <div className="inner">
+        <header className="frame_header">
+          <h1>마이페이지</h1>
+        </header>
+
+        <main className="frame_main">
+          <div className="frame_content">
+            <p>
+             페이지별 알고리즘 구현부
+            </p>
+          </div>
+        </main>
+
+        <div className="frame_button_area">
+          <button className="frame_button">일정짜기</button>
+        </div>
+      </div>
+    </div>
   );
 }
 
