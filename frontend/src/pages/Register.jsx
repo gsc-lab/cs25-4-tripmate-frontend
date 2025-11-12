@@ -25,7 +25,7 @@ function RegisterPage() {
     if (nickname > 50) { alert("닉네임은 50자 이내로 입력해주세요."); return; }
 
     // 사용자가 입력 한 값을 저장한 변수
-    const input_value = { email, password, nickname: nickname.trim() === "" ? null : nickname };
+    const input_value = { email, password, nickname };
 
     try { // 서버에 axios로 입력한 데이터를 보냄
       const req = await axios.post("http://localhost:8080/api/v1/users", input_value, {
