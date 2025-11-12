@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./Regions.css"
 
+const navigate = useNavigate()
 
 
 function Regions() {
