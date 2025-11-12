@@ -28,7 +28,7 @@ function RegisterPage() {
     const input_value = { email, password, nickname: nickname.trim() === "" ? null : nickname };
 
     try { // 서버에 axios로 입력한 데이터를 보냄
-      const req = await axios.post("http://localhost:5000/api/v1/users", input_value, {
+      const req = await axios.post("http://localhost:8080/api/v1/users", input_value, {
         headers: { "Content-Type": "application/json", Accept: "application/json" }
       });
 
@@ -38,7 +38,7 @@ function RegisterPage() {
       // 회원가입 완료 시, 로그인 화면으로 이동
       if (response?.success) {
         alert("회원가입 완료! 로그인 페이지로 이동합니다.");
-        navigate("/api/v1/auth/login");
+        navigate("/login");
         return;
       }
 
@@ -74,7 +74,7 @@ function RegisterPage() {
             value={nickname}
             onChange={(e) => setNickname(e.target.value)}
           />
-          <label htmlFor="nickname">닉네임 (선택)</label>
+          <label htmlFor="nickname">닉네임(50자 이내)</label>
         </div>
 
         <div className="form-floating">
@@ -105,7 +105,7 @@ function RegisterPage() {
 
         <div className="mt-3">
           이미 계정이 있으신가요?{" "}
-          <Link to="/api/v1/auth/login" className="text-decoration-none">
+          <Link to="/login" className="text-decoration-none">
             로그인
           </Link>
         </div>
