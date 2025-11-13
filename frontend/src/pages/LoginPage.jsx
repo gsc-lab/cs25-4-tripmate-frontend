@@ -100,7 +100,7 @@ function LoginPage() {
         <button
           type="button"
           className="btn btn-outline-secondary w-100 py-2 mt-2"
-          onClick={() => navigate("/api/v1/users")}
+          onClick={() => navigate("/register")}
         >
           회원가입
         </button>

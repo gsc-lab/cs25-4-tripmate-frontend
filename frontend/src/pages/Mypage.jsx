@@ -22,10 +22,10 @@ function Mypage() {
       // 서버로부터 받은 응답
       const response = req.data;
 
-      if (response?.success) {
+      if (req?.status === 204) {
         localStorage.removeItem("access_token");
         alert("로그아웃 되었습니다.");
-        navigate("/api/v1/auth/login");
+        navigate("/login");
         return;
       } 
 
@@ -55,10 +55,10 @@ function DelUser() {
       // 서버로부터 받은 응답
       const response = req.data;
 
-      if (response?.status === 204) {
+      if (req?.status === 204) {
         localStorage.removeItem("access_token");
         alert("탈퇴 되었습니다.");
-        navigate("/api/v1/auth/login");
+        navigate("/login");
         return;
       } 
 
@@ -80,7 +80,7 @@ function DelUser() {
           <div className="header_top">
             <h1>마이페이지</h1>
             <button className="logout_button"
-            onClick={() => Logout_func}>로그아웃</button>
+            onClick={() => Logout_func()}>로그아웃</button>
           </div>
         </header>
 
@@ -92,10 +92,10 @@ function DelUser() {
 
         <div className="button_area">
           <button className="del_button" 
-          onClick={() => Del_User_func}>회원탈퇴</button>
+          onClick={() => Del_User_func()}>회원탈퇴</button>
 
           <button className="make_button"
-          onClick={() => navigate("/api/v1/regions")}>일정짜기</button>
+          onClick={() => navigate("/regions")}>일정짜기</button>
         </div>
       </div>
     </div>
