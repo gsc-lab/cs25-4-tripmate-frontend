@@ -1,8 +1,8 @@
-import { useState } from "react";
+import React, { useState } from "react";
+import { Box, TextField, Button } from "@mui/material";
 import { useNavigate, Link } from "react-router-dom";
+import AuthLayout from "../components/AuthLayout.jsx";
 import axios from "axios";
-import "./form_design.css";
-import logo from "../assets/TripMate_Logo.png";
 
 function Register() {
   // 페이지 이동을 위한 네비게이션 함수
@@ -55,62 +55,88 @@ function Register() {
   }
 
   return (
-    <main className="form-signin w-100 m-auto text-center">
-      <form onSubmit={handleRegister}>
-        <img
-          className="logo"
-          src={logo}
-          width="300"
-          height="80"
+    <AuthLayout title="회원가입" onSubmit={handleRegister}>
+      <Box
+        sx={{
+          width: "100%",
+          display: "flex",
+          flexDirection: "column",
+          gap: 2,
+        }}
+      >
+        {/* 닉네임 */}
+        <TextField
+          type="text"
+          placeholder="닉네임(50자 이내)"
+          value={nickname}
+          onChange={(e) => setNickname(e.target.value)}
+          fullWidth
+          size="medium"
+          InputProps={{
+            sx: {
+              bgcolor: "#e9e7e7",
+              "& fieldset": { border: "none" },
+            },
+          }}
         />
 
-        <h1 className="h3 mb-3 fw-normal">회원가입</h1>
+        {/* 이메일 */}
+        <TextField
+          type="email"
+          placeholder="이메일 주소"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          fullWidth
+          size="medium"
+          InputProps={{
+            sx: {
+              bgcolor: "#e9e7e7",
+              "& fieldset": { border: "none" },
+            },
+          }}
+        />
 
-        <div className="form-floating">
-          <input
-            type="text"
-            className="form-control"
-            id="nickname"
-            value={nickname}
-            onChange={(e) => setNickname(e.target.value)}
-          />
-          <label htmlFor="nickname">닉네임(50자 이내)</label>
-        </div>
+        {/* 비밀번호 */}
+        <TextField
+          type="password"
+          placeholder="비밀번호 (8~128자)"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          fullWidth
+          size="medium"
+          InputProps={{
+            sx: {
+              bgcolor: "#e9e7e7",
+              "& fieldset": { border: "none" },
+            },
+          }}
+        />
 
-        <div className="form-floating">
-          <input
-            type="email"
-            className="form-control"
-            id="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          <label htmlFor="email">이메일 주소</label>
-        </div>
-
-        <div className="form-floating">
-          <input
-            type="password"
-            className="form-control"
-            id="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          <label htmlFor="password">비밀번호 (8~128자)</label>
-        </div>
-
-        <button className="btn btn-primary w-100 py-2 mt-3" type="submit">
+        {/* 회원가입 버튼 */}
+        <Button
+          type="submit"
+          variant="contained"
+          fullWidth
+          sx={{
+            mt: 1,
+            height: 48,
+            bgcolor: "#38aef3",
+            fontWeight: 600,
+            "&:hover": { bgcolor: "#2597da" },
+          }}
+        >
           회원가입
-        </button>
+        </Button>
 
-        <div className="mt-3">
+        {/* 아래 문구 + 로그인 링크 */}
+        <Box sx={{ mt: 1, textAlign: "center", fontSize: 14 }}>
           이미 계정이 있으신가요?{" "}
           <Link to="/login" className="text-decoration-none">
             로그인
           </Link>
-        </div>
-      </form>
-    </main>
+        </Box>
+      </Box>
+    </AuthLayout>
   );
 }
 
