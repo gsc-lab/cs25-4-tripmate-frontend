@@ -6,16 +6,16 @@ function Mypage() {
   const navigate = useNavigate();
   const token = localStorage.getItem("access_token");
 
-  // if (!token) {
-  //   alert("로그인이 필요한 페이지입니다.");
-  //   navigate("/api/v1/auth/login");
-  //   return;
-  // }
+  if (!token) {
+    alert("로그인이 필요한 페이지입니다.");
+    navigate("/api/v1/auth/login");
+    return;
+  }
 
   // 로그아웃 함수
   async function Logout_func() {
     try {
-      const req = await axios.post( "http://localhost:5000/api/v1/auth/logout", null,
+      const req = await axios.post( "http://localhost:8080/api/v1/auth/logout", null,
         { headers: { Authorization: `Bearer ${token}`, }, }
       );
       
@@ -48,7 +48,7 @@ function DelUser() {
   // 회원탈퇴 함수
   async function Del_User_func() {
     try {
-      const req = await axios.delete( "http://localhost:5000/api/v1/users/me",
+      const req = await axios.delete( "http://localhost:8080/api/v1/users/me",
         { headers: { Authorization: `Bearer ${token}`, }, }
       );
       
