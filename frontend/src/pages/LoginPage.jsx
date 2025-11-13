@@ -1,15 +1,7 @@
-import { useState } from "react";
-import { useNavigate} from "react-router-dom";
-import axios from "axios";
-// import "./form_design.css";
-import {
-  Box,
-  Paper,
-  TextField,
-  Button,
-  Typography,
-} from "@mui/material";
-import logo from "../assets/TripMate_Logo.png";
+import React, { useState } from "react";
+import { Box, TextField, Button } from "@mui/material";
+import { useNavigate } from "react-router-dom";
+import AuthLayout from "./AuthLayout.jsx";
 
 function LoginPage() {
 
@@ -67,143 +59,84 @@ function LoginPage() {
   }
 
   return (
-    <Box
-      sx={{
-        minHeight: "100vh",
-        width: "100%",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        background: "linear-gradient(to bottom, #4cc2ff, #e8f7ff)",
-        position: "relative",
-        fontFamily: `"Noto Sans KR", -apple-system, BlinkMacSystemFont, sans-serif`,
-      }}
-    >
-      {/* 좌측 상단 TripMate 로고 */}
+    <AuthLayout title="로그인" onSubmit={handleLogin}>
       <Box
         sx={{
-          position: "absolute",
-          top: 16,
-          left: 24,
-          display: "flex",
-          alignItems: "center",
-          gap: 1,
-        }}
-      >
-        <img
-          src={logo}
-          alt="TripMate Logo"
-          style={{ height: 40 }}
-        />
-      </Box>
-
-      {/* 가운데 로그인 카드 (form 역할) */}
-      <Paper
-        component="form"
-        onSubmit={handleLogin}
-        elevation={8}
-        sx={{
-          borderRadius: "40px",
-          px: 8,
-          py: 7,
-          minWidth: 360,
-          maxWidth: 420,
+          width: "100%",
           display: "flex",
           flexDirection: "column",
-          alignItems: "center",
-          boxShadow: "0 18px 25px rgba(0,0,0,0.15)",
-          bgcolor: "#ffffff",
+          gap: 2,
         }}
       >
-        {/* 제목 */}
-        <Typography
-          variant="h4"
-          component="h1"
-          sx={{ fontWeight: 800, mb: 5 }}
-        >
-          로그인
-        </Typography>
+        <TextField
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          fullWidth
+          size="medium"
+          InputProps={{
+            sx: {
+              bgcolor: "#e9e7e7",
+              "& fieldset": { border: "none" },
+            },
+          }}
+        />
 
-        {/* 입력 + 버튼 영역 */}
-        <Box
+        <TextField
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          fullWidth
+          size="medium"
+          InputProps={{
+            sx: {
+              bgcolor: "#e9e7e7",
+              "& fieldset": { border: "none" },
+            },
+          }}
+        />
+
+        <Button
+          type="submit"
+          variant="contained"
+          fullWidth
           sx={{
-            width: "100%",
-            display: "flex",
-            flexDirection: "column",
-            gap: 2,
+            mt: 1,
+            height: 48,
+            bgcolor: "#38aef3",
+            fontWeight: 600,
+            "&:hover": { bgcolor: "#2597da" },
           }}
         >
-          <TextField
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            fullWidth
-            size="medium"
-            InputProps={{
-              sx: {
-                bgcolor: "#e9e7e7",
-                "& fieldset": { border: "none" },
-              },
-            }}
-          />
+          로그인
+        </Button>
 
-          <TextField
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            fullWidth
-            size="medium"
-            InputProps={{
-              sx: {
-                bgcolor: "#e9e7e7",
-                "& fieldset": { border: "none" },
-              },
-            }}
-          />
-
-          {/* 로그인 버튼 */}
-          <Button
-            type="submit"
-            variant="contained"
-            fullWidth
-            sx={{
-              mt: 1,
-              height: 48,
-              bgcolor: "#38aef3",
-              fontWeight: 600,
-              "&:hover": { bgcolor: "#2597da" },
-            }}
-          >
-            로그인
-          </Button>
-
-          {/* 회원가입 버튼 */}
-          <Button
-            type="button"
-            variant="outlined"
-            fullWidth
-            sx={{
-              height: 48,
-              borderColor: "#38aef3",
-              color: "#000",
-              fontWeight: 600,
-              bgcolor: "#ffffff",
-              "&:hover": {
-                borderColor: "#2597da",
-                bgcolor: "#f5fbff",
-              },
-            }}
-            onClick={() => navigate("/register")}
-          >
-            회원가입
-          </Button>
-        </Box>
-      </Paper>
-    </Box>
+        <Button
+          type="button"
+          variant="outlined"
+          fullWidth
+          sx={{
+            height: 48,
+            borderColor: "#38aef3",
+            color: "#000",
+            fontWeight: 600,
+            bgcolor: "#ffffff",
+            "&:hover": {
+              borderColor: "#2597da",
+              bgcolor: "#f5fbff",
+            },
+          }}
+          onClick={() => navigate("/register")}
+        >
+          회원가입
+        </Button>
+      </Box>
+    </AuthLayout>
   );
 }
+
 
 
 export default LoginPage;
