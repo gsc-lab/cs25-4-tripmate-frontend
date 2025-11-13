@@ -1,107 +1,115 @@
+import { Box, Button, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import "./Mypage.css";
+import PageLayout from "../components/PageLayout";
 
 function Mypage() {
   const navigate = useNavigate();
   const token = localStorage.getItem("access_token");
-
+  
   // if (!token) {
   //   alert("로그인이 필요한 페이지입니다.");
   //   navigate("/login");
   //   return;
   // }
 
-  // 로그아웃 함수
+  // 로그아웃
   async function Logout_func() {
     try {
-      const req = await axios.post( "http://localhost:8080/api/v1/auth/logout", null,
-        { headers: { Authorization: `Bearer ${token}`, }, }
+      const req = await axios.post(
+        "http://localhost:8080/api/v1/auth/logout",
+        null,
+        { headers: { Authorization: `Bearer ${token}` } }
       );
-      
-      // 서버로부터 받은 응답
-      const response = req.data;
 
       if (req?.status === 204) {
         localStorage.removeItem("access_token");
         alert("로그아웃 되었습니다.");
         navigate("/login");
-        return;
-      } 
-
-      // 에러 코드 401 - 인증이 없을 시, 인증이 필요하다는 에러 문구 출력
-      if (response?.error?.code === "UNAUTHORIZED") {
-        alert("인증이 필요합니다.");
-        return;
       }
-
     } catch (err) {
       console.error(err);
     }
-  };
-
-  // 회원 탈퇴 모달
-  function DelUser() {
-    return (
-      <>
-      </>
-    );
   }
 
-  // 회원탈퇴 함수
+  // 회원 탈퇴
   async function Del_User_func() {
     try {
-      const req = await axios.delete( "http://localhost:8080/api/v1/users/me",
-        { headers: { Authorization: `Bearer ${token}`, }, }
+      const req = await axios.delete(
+        "http://localhost:8080/api/v1/users/me",
+        { headers: { Authorization: `Bearer ${token}` } }
       );
-      
-      // 서버로부터 받은 응답
-      const response = req.data;
 
       if (req?.status === 204) {
         localStorage.removeItem("access_token");
-        alert("탈퇴 되었습니다.");
+        alert("탈퇴되었습니다.");
         navigate("/login");
-        return;
-      } 
-
-      // 에러 코드 409 - 응답 실패
-      if (response?.error?.code === "CONFLICT") {
-        alert("현재 상태에서는 탈퇴할 수 없습니다.");
-        return;
       }
-
     } catch (err) {
       console.error(err);
     }
-  };
+  }
 
   return (
-    <div className="frame">
-      <div className="inner">
-        <header className="frame_header">
-          <div className="header_top">
-            <h1>마이페이지</h1>
-            <button className="logout_button"
-            onClick={() => Logout_func()}>로그아웃</button>
-          </div>
-        </header>
+    <PageLayout
+      title="각 파트 별 제목"
+      actionLabel="일정짜기"
+      onAction={() => navigate("/regions")}
+    >
 
-        <main className="frame_main">
-          <div className="frame_content">
-            <p>페이지별 알고리즘 구현부</p>
-          </div>
-        </main>
+      <Typography
+        sx={{
+          fontSize: 26,
+          textAlign: "center",
+          lineHeight: 1.6,
+        }}
+      >
+        알고리즘 구현부
+      </Typography>
 
-        <div className="button_area">
-          <button className="del_button" 
-          onClick={() => {Del_User_func()}}>회원탈퇴</button>
+      
+      <Box
+        sx={{
+          position: "absolute",
+          top: 20,
+          right: 20,
+        }}
+      >
+        <Button
+          variant="contained"
+          onClick={Logout_func}
+          sx={{
+            background: "#ffffff99",
+            color: "#000",
+            fontWeight: 600,
+            "&:hover": { background: "#ffffffdd" },
+          }}
+        >
+          로그아웃
+        </Button>
+      </Box>
 
-          <button className="make_button"
-          onClick={() => navigate("/regions")}>일정짜기</button>
-        </div>
-      </div>
-    </div>
+      <Box
+        sx={{
+          position: "absolute",
+          bottom: 20,
+          left: 20,
+        }}
+      >
+        <Button
+          variant="contained"
+          onClick={Del_User_func}
+          sx={{
+            background: "#ffcccc",
+            color: "#a00000",
+            fontWeight: 600,
+            "&:hover": { background: "#ffbbbb" },
+          }}
+        >
+          회원탈퇴
+        </Button>
+      </Box>
+    </PageLayout>
   );
 }
 
