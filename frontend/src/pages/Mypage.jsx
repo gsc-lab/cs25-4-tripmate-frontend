@@ -52,7 +52,7 @@ function Mypage() {
 
   return (
     <PageLayout
-      title="각 파트 별 제목"
+      title="마이페이지"
       actionLabel="일정짜기"
       onAction={() => navigate("/regions")}
     >
@@ -64,7 +64,7 @@ function Mypage() {
           lineHeight: 1.6,
         }}
       >
-        알고리즘 구현부
+        생성된 여행 일정
       </Typography>
 
       

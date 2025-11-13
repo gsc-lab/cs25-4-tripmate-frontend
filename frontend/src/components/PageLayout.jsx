@@ -24,6 +24,7 @@ function PageLayout({
       {/* 상단 제목 */}
       <Typography
         variant="h3"
+        color="black"
         sx={{
           fontWeight: 700,
           mb: 3,
