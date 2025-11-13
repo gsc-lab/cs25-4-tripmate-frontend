@@ -1,7 +1,14 @@
 import { useState } from "react";
 import { useNavigate} from "react-router-dom";
 import axios from "axios";
-import "./form_design.css";
+// import "./form_design.css";
+import {
+  Box,
+  Paper,
+  TextField,
+  Button,
+  Typography,
+} from "@mui/material";
 import logo from "../assets/TripMate_Logo.png";
 
 function LoginPage() {
@@ -60,53 +67,143 @@ function LoginPage() {
   }
 
   return (
-    <main className="form-signin w-100 m-auto text-center">
-      <form onSubmit={handleLogin}>
+    <Box
+      sx={{
+        minHeight: "100vh",
+        width: "100%",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        background: "linear-gradient(to bottom, #4cc2ff, #e8f7ff)",
+        position: "relative",
+        fontFamily: `"Noto Sans KR", -apple-system, BlinkMacSystemFont, sans-serif`,
+      }}
+    >
+      {/* 좌측 상단 TripMate 로고 */}
+      <Box
+        sx={{
+          position: "absolute",
+          top: 16,
+          left: 24,
+          display: "flex",
+          alignItems: "center",
+          gap: 1,
+        }}
+      >
         <img
-          className="logo"
           src={logo}
-          width="300"
-          height="80"
+          alt="TripMate Logo"
+          style={{ height: 40 }}
         />
+      </Box>
 
-        <h1 className="h3 mb-3 fw-normal">로그인</h1>
+      {/* 가운데 로그인 카드 (form 역할) */}
+      <Paper
+        component="form"
+        onSubmit={handleLogin}
+        elevation={8}
+        sx={{
+          borderRadius: "40px",
+          px: 8,
+          py: 7,
+          minWidth: 360,
+          maxWidth: 420,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          boxShadow: "0 18px 25px rgba(0,0,0,0.15)",
+          bgcolor: "#ffffff",
+        }}
+      >
+        {/* 제목 */}
+        <Typography
+          variant="h4"
+          component="h1"
+          sx={{ fontWeight: 800, mb: 5 }}
+        >
+          로그인
+        </Typography>
 
-        <div className="form-floating">
-          <input
+        {/* 입력 + 버튼 영역 */}
+        <Box
+          sx={{
+            width: "100%",
+            display: "flex",
+            flexDirection: "column",
+            gap: 2,
+          }}
+        >
+          <TextField
             type="email"
-            className="form-control"
-            id="floatingInput"
+            placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            fullWidth
+            size="medium"
+            InputProps={{
+              sx: {
+                bgcolor: "#e9e7e7",
+                "& fieldset": { border: "none" },
+              },
+            }}
           />
-          <label htmlFor="floatingInput">이메일 주소</label>
-        </div>
 
-        <div className="form-floating">
-          <input
+          <TextField
             type="password"
-            className="form-control"
-            id="floatingPassword"
+            placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            fullWidth
+            size="medium"
+            InputProps={{
+              sx: {
+                bgcolor: "#e9e7e7",
+                "& fieldset": { border: "none" },
+              },
+            }}
           />
-          <label htmlFor="floatingPassword">비밀번호</label>
-        </div>
-        <br />
-        <button className="btn btn-primary w-100 py-2" type="submit">
-          로그인
-        </button>
 
-        <button
-          type="button"
-          className="btn btn-outline-secondary w-100 py-2 mt-2"
-          onClick={() => navigate("/register")}
-        >
-          회원가입
-        </button>
-      </form>
-    </main>
+          {/* 로그인 버튼 */}
+          <Button
+            type="submit"
+            variant="contained"
+            fullWidth
+            sx={{
+              mt: 1,
+              height: 48,
+              bgcolor: "#38aef3",
+              fontWeight: 600,
+              "&:hover": { bgcolor: "#2597da" },
+            }}
+          >
+            로그인
+          </Button>
+
+          {/* 회원가입 버튼 */}
+          <Button
+            type="button"
+            variant="outlined"
+            fullWidth
+            sx={{
+              height: 48,
+              borderColor: "#38aef3",
+              color: "#000",
+              fontWeight: 600,
+              bgcolor: "#ffffff",
+              "&:hover": {
+                borderColor: "#2597da",
+                bgcolor: "#f5fbff",
+              },
+            }}
+            onClick={() => navigate("/register")}
+          >
+            회원가입
+          </Button>
+        </Box>
+      </Paper>
+    </Box>
   );
 }
+
 
 export default LoginPage;
