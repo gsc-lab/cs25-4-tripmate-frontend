@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Box, TextField, Button } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import AuthLayout from "./AuthLayout.jsx";
+import AuthLayout from "../components/AuthLayout.jsx";
 
 function LoginPage() {
 
