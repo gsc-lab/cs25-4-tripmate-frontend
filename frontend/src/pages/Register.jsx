@@ -4,7 +4,7 @@ import axios from "axios";
 import "./form_design.css";
 import logo from "../assets/TripMate_Logo.png";
 
-function RegisterPage() {
+function Register() {
   // 페이지 이동을 위한 네비게이션 함수
   const navigate = useNavigate();
 
@@ -22,7 +22,7 @@ function RegisterPage() {
     if (!password || password.length < 8 || password.length > 128) {
       alert("비밀번호는 8~128자 사이로 입력해주세요."); return;
     }
-    if (nickname > 50) { alert("닉네임은 50자 이내로 입력해주세요."); return; }
+    if (nickname.length > 50) { alert("닉네임은 50자 이내로 입력해주세요."); return; }
 
     // 사용자가 입력 한 값을 저장한 변수
     const input_value = { email, password, nickname };
@@ -36,7 +36,7 @@ function RegisterPage() {
       const response = req.data;
       
       // 회원가입 완료 시, 로그인 화면으로 이동
-      if (response?.success) {
+      if (req?.status === 204) {
         alert("회원가입 완료! 로그인 페이지로 이동합니다.");
         navigate("/login");
         return;
@@ -114,4 +114,4 @@ function RegisterPage() {
   );
 }
 
-export default RegisterPage;
+export default Register;
