@@ -1,16 +1,16 @@
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import "./Mypage.css"
+import "./Mypage.css";
 
 function Mypage() {
   const navigate = useNavigate();
   const token = localStorage.getItem("access_token");
 
-  if (!token) {
-    alert("로그인이 필요한 페이지입니다.");
-    navigate("/api/v1/auth/login");
-    return;
-  }
+  // if (!token) {
+  //   alert("로그인이 필요한 페이지입니다.");
+  //   navigate("/login");
+  //   return;
+  // }
 
   // 로그아웃 함수
   async function Logout_func() {
@@ -40,10 +40,13 @@ function Mypage() {
     }
   };
 
-// 회원 탈퇴 모달
-function DelUser() {
-  return 
-}
+  // 회원 탈퇴 모달
+  function DelUser() {
+    return (
+      <>
+      </>
+    );
+  }
 
   // 회원탈퇴 함수
   async function Del_User_func() {
@@ -92,7 +95,7 @@ function DelUser() {
 
         <div className="button_area">
           <button className="del_button" 
-          onClick={() => Del_User_func()}>회원탈퇴</button>
+          onClick={() => {Del_User_func()}}>회원탈퇴</button>
 
           <button className="make_button"
           onClick={() => navigate("/regions")}>일정짜기</button>

@@ -28,7 +28,6 @@ html, body, #root {
   padding: 20px 0 10px 0;
 }
 
-/* 상단 제목 + 로그아웃 버튼 정렬 */
 .header_top {
   display: flex;
   justify-content: space-between;
@@ -40,9 +39,9 @@ html, body, #root {
   font-size: 40px;
   font-weight: 600;
   text-align: left;
+  color: black;
 }
 
-/* 메인 영역 */
 .frame_main {
   flex: 1;
   display: flex;
@@ -75,11 +74,11 @@ button {
 }
 
 /* 상단 로그아웃 버튼 */
-.logout_button {
+.del_button{
   background-color: red;
   color: white;
 }
-.logout_button:hover {
+.del_button:hover {
   background-color: #cc0000;
 }
 
@@ -92,12 +91,12 @@ button {
 }
 
 /* 하단 버튼들 */
-.make_button,
-.del_button {
+.make_button, 
+.logout_button {
   background: white;
   color: black;
 }
 .make_button:hover,
-.del_button:hover {
+.logout_button:hover {
   background: #e0e0e0;
 }
