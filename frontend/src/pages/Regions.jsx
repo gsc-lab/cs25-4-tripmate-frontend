@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { Box, Button, Typography, Modal, TextField } from "@mui/material";
+import { Typography, TextField, CircularProgress } from "@mui/material";
+import Autocomplete from "@mui/material/Autocomplete";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import PageLayout from "../components/PageLayout";
@@ -7,21 +8,52 @@ import PageLayout from "../components/PageLayout";
 function Regions() {
   const navigate = useNavigate();
 
-  async function Load_Regions() {
+  const [open, setOpen] = useState(false);
+  const [options, setOptions] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  const [country] = useState("KR");
+  const [query] = useState("");
+
+  const handleOpen = async () => {
+    setOpen(true);
+    setLoading(true);
+
+    const params = { country, query };
+
     try {
-      const req = await axios.get(
+      const res = await axios.get(
         "http://localhost:8080/api/v1/regions/search",
-        { headers: { Accept: application/json } }
+        { params, headers: { Accept: "application/json" } }
       );
 
-
+      if (res.status === 200) {
+        setOptions(res.data.data ?? []);
+      } 
     } catch (err) {
-      const status = err.response
-      
+      const status = err.response?.status;
+
+      if (status === 422) {
+        alert("입력값이 유효하지 않습니다. (422)");
+        return;
+      }
+
+      if (status === 429) {
+        alert("요청 한도를 초과했습니다. (429)");
+        return;
+      } 
 
       console.error(err);
+
+    } finally {
+      setLoading(false);
     }
-  }
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+    setOptions([]);
+  };
 
   return (
     <PageLayout
@@ -29,16 +61,36 @@ function Regions() {
       actionLabel="일자 선택"
       onAction={() => navigate("/tripday")}
     >
-      <Typography
-        sx={{
-          fontSize: 26,
-          textAlign: "center",
-          lineHeight: 1.6,
-        }}
-      >
-        여행지 검색
-      </Typography>
 
+      <Autocomplete
+        sx={{ width: 900 }}
+        open={open}
+        onOpen={handleOpen}
+        onClose={handleClose}
+        options={options}
+        loading={loading}
+        isOptionEqualToValue={(option, value) => option.region_id === value.region_id}
+        getOptionLabel={(option) => option.name ?? ""}
+        renderInput={(params) => (
+          <TextField
+            {...params}
+            label="여행지 목록"
+            slotProps={{
+              input: {
+                ...params.InputProps,
+                endAdornment: (
+                  <>
+                    {loading ? (
+                      <CircularProgress color="inherit" size={20} />
+                    ) : null}
+                    {params.InputProps.endAdornment}
+                  </>
+                ),
+              },
+            }}
+          />
+        )}
+      />
     </PageLayout>
   );
 }
