@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Typography, TextField, CircularProgress } from "@mui/material";
+import { useState } from "react";
+import { TextField, CircularProgress } from "@mui/material";
 import Autocomplete from "@mui/material/Autocomplete";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -19,12 +19,11 @@ function Regions() {
     setOpen(true);
     setLoading(true);
 
-    const params = { country, query };
+    const input_value = { country, query };
 
     try {
-      const res = await axios.get(
-        "http://localhost:8080/api/v1/regions/search",
-        { params, headers: { Accept: "application/json" } }
+      const res = await axios.get("http://localhost:8080/api/v1/regions/search", 
+        { input_value, headers: { Accept: "application/json" } }
       );
 
       if (res.status === 200) {
@@ -61,7 +60,6 @@ function Regions() {
       actionLabel="일자 선택"
       onAction={() => navigate("/tripday")}
     >
-
       <Autocomplete
         sx={{ width: 900 }}
         open={open}
