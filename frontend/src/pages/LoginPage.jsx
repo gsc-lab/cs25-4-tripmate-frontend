@@ -41,20 +41,20 @@ function LoginPage() {
         return;
       }
 
-      // 에러 코드 401 - 이메일 및 비밀번호 일치하지 않을 시
-      if (response?.error?.code === "AUTH_FAILED") {
+    } catch (err) {
+      const status = err.response?.status;
+
+      // 오류 응답 - 사용중인 이메일 일 경우, 에러
+      if (status === 400) {
         alert("이메일 또는 비밀번호가 일치하지 않습니다.");
         return;
       }
 
-      // 에러 코드 422 - 입력 값이 유효하지 않을 시
-      if (response?.error?.code === "VALIDATION_ERROR") {
+      if (status === 422) {
         alert("입력값이 유효하지 않습니다.");
         return;
       }
 
-      // 그 외의 실패
-    } catch (err) {
       console.error(err);
     }
   }
