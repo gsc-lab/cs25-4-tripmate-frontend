@@ -1,32 +1,45 @@
+import React, { useState } from "react";
+import { Box, Button, Typography, Modal, TextField } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import "./Regions.css"
-
-const navigate = useNavigate()
-
+import PageLayout from "../components/PageLayout";
 
 function Regions() {
+  const navigate = useNavigate();
+
+  async function Load_Regions() {
+    try {
+      const req = await axios.get(
+        "http://localhost:8080/api/v1/regions/search",
+        { headers: { Accept: application/json } }
+      );
+
+
+    } catch (err) {
+      const status = err.response
+      
+
+      console.error(err);
+    }
+  }
+
   return (
-    <div className="frame">
-      <div className="inner">
-        <header className="frame_header">
-          <div className="header_top">
-            <h1>지역 검색</h1>
-          </div>
-        </header>
+    <PageLayout
+      title="여행지역 선택"
+      actionLabel="일자 선택"
+      onAction={() => navigate("/tripday")}
+    >
+      <Typography
+        sx={{
+          fontSize: 26,
+          textAlign: "center",
+          lineHeight: 1.6,
+        }}
+      >
+        여행지 검색
+      </Typography>
 
-        <main className="frame_main">
-          <div className="frame_content">
-            <p>여행 지역 검색 창</p>
-          </div>
-        </main>
-
-        <div className="button_area">
-          <button className="make_button"
-          onClick={() => navigate("/")}>여행일정 생성</button>
-        </div>
-      </div>
-    </div>
+    </PageLayout>
   );
 }
 
