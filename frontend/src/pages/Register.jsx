@@ -28,13 +28,13 @@ function Register() {
     const input_value = { email, password, nickname };
 
     try { // 서버에 axios로 입력한 데이터를 보냄
-      const req = await axios.post("http://210.101.236.165:8000/api/v1/users", input_value, {
+      const req = await axios.post("http://localhost:8080/api/v1/users", input_value, {
         headers: { "Content-Type": "application/json", Accept: "application/json" }
       });
 
       // 서버로 부터 받은 값
       const response = req.data;
-      
+
       // 회원가입 완료 시, 로그인 화면으로 이동
       if (req?.status === 204) {
         alert("회원가입 완료! 로그인 페이지로 이동합니다.");
@@ -42,14 +42,20 @@ function Register() {
         return;
       }
 
+    } catch (err) {
+      const status = err.response?.status;
+
       // 오류 응답 - 사용중인 이메일 일 경우, 에러
-      if (response?.error?.code === "DUPLICATE_EMAIL") {
+      if (status === 409) {
         alert("이미 사용 중인 이메일입니다.");
         return;
       }
 
-      // 그 외의 에러 시
-    } catch (err) {
+      if (status === 422) {
+        alert("입력값이 유효하지 않습니다.");
+        return;
+      }
+
       console.error(err);
     }
   }
@@ -128,7 +134,6 @@ function Register() {
           회원가입
         </Button>
 
-        {/* 아래 문구 + 로그인 링크 */}
         <Box sx={{ mt: 1, textAlign: "center", fontSize: 14 }}>
           이미 계정이 있으신가요?{" "}
           <Link to="/login" className="text-decoration-none">
