@@ -1,143 +1,237 @@
 import React, { useState } from "react";
-import { Box, TextField, Button } from "@mui/material";
-import { useNavigate, Link } from "react-router-dom";
-import AuthLayout from "../components/AuthLayout.jsx";
+import { Box, Button, Typography, Modal, TextField } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import PageLayout from "../components/PageLayout";
 
-function Register() {
-  // 페이지 이동을 위한 네비게이션 함수
+function Mypage() {
   const navigate = useNavigate();
+  const token = localStorage.getItem("access_token");
 
-  // 입력 값 저장
-  const [nickname, setNickname] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  // 회원탈퇴 모달 상태
+  const [openDeleteModal, setOpenDeleteModal] = useState(false);
+  const [deletePassword, setDeletePassword] = useState("");
 
-  // 입력한 사용자 값을 초기화 하지 않기 위한 함수
-  async function handleRegister(e) {
-    e.preventDefault();
+  const handleOpenDeleteModal = () => setOpenDeleteModal(true);
+  const handleCloseDeleteModal = () => {
+    setOpenDeleteModal(false);
+    setDeletePassword("");
+  };
 
-    // 지정된 조건에 맞게 입력하지 않으면, 경고 메시지 출력
-    if (email.length > 255) { alert("이메일은 255자 이하로 입력해주세요."); return; }
-    if (!password || password.length < 8 || password.length > 128) {
-      alert("비밀번호는 8~128자 사이로 입력해주세요."); return;
-    }
-    if (nickname.length > 50) { alert("닉네임은 50자 이내로 입력해주세요."); return; }
+  // 로그아웃
+  async function Logout_func() {
+    try {
+      const req = await axios.post(
+        "http://localhost:8080/api/v1/auth/logout",
+        null,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
 
-    // 사용자가 입력 한 값을 저장한 변수
-    const input_value = { email, password, nickname };
-
-    try { // 서버에 axios로 입력한 데이터를 보냄
-      const req = await axios.post("http://localhost:8080/api/v1/users", input_value, {
-        headers: { "Content-Type": "application/json", Accept: "application/json" }
-      });
-
-      // 서버로 부터 받은 값
-      const response = req.data;
-      
-      // 회원가입 완료 시, 로그인 화면으로 이동
       if (req?.status === 204) {
-        alert("회원가입 완료! 로그인 페이지로 이동합니다.");
+        localStorage.removeItem("access_token");
+        alert("로그아웃 되었습니다.");
         navigate("/login");
-        return;
       }
-
-      // 오류 응답 - 사용중인 이메일 일 경우, 에러
-      if (response?.error?.code === "DUPLICATE_EMAIL") {
-        alert("이미 사용 중인 이메일입니다.");
-        return;
-      }
-
-      // 그 외의 에러 시
     } catch (err) {
       console.error(err);
     }
   }
 
+  // 회원탈퇴
+  async function Del_User_func() {
+    if (!deletePassword) {
+      alert("비밀번호를 입력해주세요.");
+      return;
+    }
+
+    try {
+      const req = await axios.delete(
+        "http://localhost:8080/api/v1/users/me",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+          data: { password: deletePassword }
+        }
+      );
+
+      if (req?.status === 204) {
+        localStorage.removeItem("access_token");
+        alert("탈퇴 되었습니다.");
+        handleCloseDeleteModal();
+        navigate("/login");
+        return;
+      }
+    } catch (err) {
+      console.error(err);
+
+      if (err?.response?.status === 404) {
+        alert("해당 유저를 찾을 수 없습니다.");
+        return;
+      } else if (err?.response?.status === 422) {
+        alert("입력값이 유효하지 않습니다.");
+        return;
+      } else if (err?.response?.status === 401) {
+        alert("인증이 필요합니다.");
+        return;
+      }
+    }
+  }
+
   return (
-    <AuthLayout title="회원가입" onSubmit={handleRegister}>
-      <Box
+    <PageLayout
+      title="마이페이지"
+      actionLabel="일정짜기"
+      onAction={() => navigate("/regions")}
+    >
+      <Typography
         sx={{
-          width: "100%",
-          display: "flex",
-          flexDirection: "column",
-          gap: 2,
+          fontSize: 26,
+          textAlign: "center",
+          lineHeight: 1.6,
         }}
       >
-        {/* 닉네임 */}
-        <TextField
-          type="text"
-          placeholder="닉네임(50자 이내)"
-          value={nickname}
-          onChange={(e) => setNickname(e.target.value)}
-          fullWidth
-          size="medium"
-          InputProps={{
-            sx: {
-              bgcolor: "#e9e7e7",
-              "& fieldset": { border: "none" },
-            },
-          }}
-        />
+        생성된 여행 일정
+      </Typography>
 
-        {/* 이메일 */}
-        <TextField
-          type="email"
-          placeholder="이메일 주소"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          fullWidth
-          size="medium"
-          InputProps={{
-            sx: {
-              bgcolor: "#e9e7e7",
-              "& fieldset": { border: "none" },
-            },
-          }}
-        />
-
-        {/* 비밀번호 */}
-        <TextField
-          type="password"
-          placeholder="비밀번호 (8~128자)"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          fullWidth
-          size="medium"
-          InputProps={{
-            sx: {
-              bgcolor: "#e9e7e7",
-              "& fieldset": { border: "none" },
-            },
-          }}
-        />
-
-        {/* 회원가입 버튼 */}
+      <Box
+        sx={{
+          position: "absolute",
+          top: 20,
+          right: 20,
+        }}
+      >
         <Button
-          type="submit"
           variant="contained"
-          fullWidth
+          onClick={Logout_func}
           sx={{
-            mt: 1,
-            height: 48,
-            bgcolor: "#38aef3",
+            background: "#ffffff",
+            color: "#000",
             fontWeight: 600,
-            "&:hover": { bgcolor: "#2597da" },
+            boxShadow: "none",
+            border: "1px solid #d0d0d0",
+            "&:hover": {
+              background: "#f7f7f7",
+            },
           }}
         >
-          회원가입
+          로그아웃
         </Button>
-
-        {/* 아래 문구 + 로그인 링크 */}
-        <Box sx={{ mt: 1, textAlign: "center", fontSize: 14 }}>
-          이미 계정이 있으신가요?{" "}
-          <Link to="/login" className="text-decoration-none">
-            로그인
-          </Link>
-        </Box>
       </Box>
-    </AuthLayout>
+
+      <Box
+        sx={{
+          position: "absolute",
+          bottom: 20,
+          left: 20,
+        }}
+      >
+        <Button
+          variant="contained"
+          onClick={handleOpenDeleteModal}
+          sx={{
+            background: "#f7dcdc",
+            color: "#cf3c3c",
+            fontWeight: 600,
+            boxShadow: "none",
+            border: "1px solid #e36e6e",
+            "&:hover": {
+              background: "#f3c0c0",
+            },
+          }}
+        >
+          회원탈퇴
+        </Button>
+      </Box>
+
+      <Modal
+        open={openDeleteModal}
+        onClose={handleCloseDeleteModal}
+        aria-labelledby="delete-user-title"
+        aria-describedby="delete-user-description"
+        slotProps={{
+          backdrop: {
+            sx: {
+              backgroundColor: "rgba(0, 0, 0, 0.3)",
+              backdropFilter: "blur(3px)", 
+            },
+          },
+        }}
+      >
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: 520,
+            bgcolor: "#bfbfbf",
+            boxShadow: 24,
+            p: 6,
+            textAlign: "center",
+          }}
+        >
+          <Typography
+            id="delete-user-title"
+            variant="h4"
+            sx={{
+              fontWeight: 800,
+              mb: 3,
+              fontSize: 40,
+              textDecoration: "underline",
+              textDecorationThickness: "4px",
+              textDecorationColor: "#1e73be",
+              textUnderlineOffset: "8px",
+            }}
+          >
+            회원탈퇴
+          </Typography>
+
+          <Typography
+            id="delete-user-description"
+            sx={{
+              mb: 4,
+              fontSize: 16,
+              lineHeight: 1.6,
+            }}
+          >
+            회원 탈퇴를 하시려면, 비밀번호를 입력하세요
+          </Typography>
+
+          <TextField
+            type="password"
+            value={deletePassword}
+            onChange={(e) => setDeletePassword(e.target.value)}
+            fullWidth
+            placeholder="비밀번호"
+            InputProps={{
+              sx: {
+                bgcolor: "#e5e5e5",
+                "& fieldset": { border: "none" },
+              },
+            }}
+            sx={{ mb: 4 }}
+          />
+
+          <Button
+            variant="contained"
+            onClick={Del_User_func}
+            sx={{
+              background: "#f7dcdc",
+              color: "#cf3c3c",
+              fontWeight: 600,
+              boxShadow: "none",
+              border: "1px solid #e36e6e",
+              px: 4,
+              "&:hover": {
+                background: "#f3c0c0",
+              },
+            }}
+          >
+            회원탈퇴
+          </Button>
+        </Box>
+      </Modal>
+    </PageLayout>
   );
 }
 
-export default Register;
+export default Mypage;
