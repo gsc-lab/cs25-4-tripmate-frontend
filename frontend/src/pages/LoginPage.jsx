@@ -1,8 +1,8 @@
-import { useState } from "react";
-import { useNavigate} from "react-router-dom";
+import React, { useState } from "react";
+import { Box, TextField, Button } from "@mui/material";
+import { useNavigate } from "react-router-dom";
+import AuthLayout from "../components/AuthLayout.jsx";
 import axios from "axios";
-import "./form_design.css";
-import logo from "../assets/TripMate_Logo.png";
 
 function LoginPage() {
 
@@ -60,53 +60,84 @@ function LoginPage() {
   }
 
   return (
-    <main className="form-signin w-100 m-auto text-center">
-      <form onSubmit={handleLogin}>
-        <img
-          className="logo"
-          src={logo}
-          width="300"
-          height="80"
+    <AuthLayout title="로그인" onSubmit={handleLogin}>
+      <Box
+        sx={{
+          width: "100%",
+          display: "flex",
+          flexDirection: "column",
+          gap: 2,
+        }}
+      >
+        <TextField
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          fullWidth
+          size="medium"
+          InputProps={{
+            sx: {
+              bgcolor: "#e9e7e7",
+              "& fieldset": { border: "none" },
+            },
+          }}
         />
 
-        <h1 className="h3 mb-3 fw-normal">로그인</h1>
+        <TextField
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          fullWidth
+          size="medium"
+          InputProps={{
+            sx: {
+              bgcolor: "#e9e7e7",
+              "& fieldset": { border: "none" },
+            },
+          }}
+        />
 
-        <div className="form-floating">
-          <input
-            type="email"
-            className="form-control"
-            id="floatingInput"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          <label htmlFor="floatingInput">이메일 주소</label>
-        </div>
-
-        <div className="form-floating">
-          <input
-            type="password"
-            className="form-control"
-            id="floatingPassword"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          <label htmlFor="floatingPassword">비밀번호</label>
-        </div>
-        <br />
-        <button className="btn btn-primary w-100 py-2" type="submit">
+        <Button
+          type="submit"
+          variant="contained"
+          fullWidth
+          sx={{
+            mt: 1,
+            height: 48,
+            bgcolor: "#38aef3",
+            fontWeight: 600,
+            "&:hover": { bgcolor: "#2597da" },
+          }}
+        >
           로그인
-        </button>
+        </Button>
 
-        <button
+        <Button
           type="button"
-          className="btn btn-outline-secondary w-100 py-2 mt-2"
+          variant="outlined"
+          fullWidth
+          sx={{
+            height: 48,
+            borderColor: "#38aef3",
+            color: "#000",
+            fontWeight: 600,
+            bgcolor: "#ffffff",
+            "&:hover": {
+              borderColor: "#2597da",
+              bgcolor: "#f5fbff",
+            },
+          }}
           onClick={() => navigate("/register")}
         >
           회원가입
-        </button>
-      </form>
-    </main>
+        </Button>
+      </Box>
+    </AuthLayout>
   );
 }
+
+
 
 export default LoginPage;
