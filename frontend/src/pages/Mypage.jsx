@@ -1,4 +1,5 @@
-import { Box, Button, Typography } from "@mui/material";
+import React, { useState } from "react";
+import { Box, Button, Typography, Modal, TextField } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import PageLayout from "../components/PageLayout";
@@ -6,12 +7,16 @@ import PageLayout from "../components/PageLayout";
 function Mypage() {
   const navigate = useNavigate();
   const token = localStorage.getItem("access_token");
-  
-  // if (!token) {
-  //   alert("로그인이 필요한 페이지입니다.");
-  //   navigate("/login");
-  //   return;
-  // }
+
+  // 회원탈퇴 모달 상태
+  const [openDeleteModal, setOpenDeleteModal] = useState(false);
+  const [deletePassword, setDeletePassword] = useState("");
+
+  const handleOpenDeleteModal = () => setOpenDeleteModal(true);
+  const handleCloseDeleteModal = () => {
+    setOpenDeleteModal(false);
+    setDeletePassword("");
+  };
 
   // 로그아웃
   async function Logout_func() {
@@ -29,24 +34,50 @@ function Mypage() {
       }
     } catch (err) {
       console.error(err);
+      alert("로그아웃 중 오류가 발생했습니다.");
     }
   }
 
-  // 회원 탈퇴
+  // 회원탈퇴 (비밀번호 포함)
   async function Del_User_func() {
+    if (!deletePassword) {
+      alert("비밀번호를 입력해주세요.");
+      return;
+    }
+
     try {
       const req = await axios.delete(
         "http://localhost:8080/api/v1/users/me",
-        { headers: { Authorization: `Bearer ${token}` } }
+        {
+          headers: { Authorization: `Bearer ${token}` },
+          // ⚠ 백엔드에서 비밀번호를 어떻게 받는지에 맞춰 수정
+          // 예: body로 password 전달
+          data: { password: deletePassword },
+        }
       );
 
       if (req?.status === 204) {
         localStorage.removeItem("access_token");
-        alert("탈퇴되었습니다.");
+        alert("탈퇴 되었습니다.");
+        handleCloseDeleteModal();
         navigate("/login");
+        return;
       }
     } catch (err) {
       console.error(err);
+
+      if (err?.response?.status === 404) {
+        alert("해당 유저를 찾을 수 없습니다.");
+        return;
+      } else if (err?.response?.status === 422) {
+        alert("입력값이 유효하지 않습니다.");
+        return;
+      } else if (err?.response?.status === 401) {
+        alert("인증이 필요합니다.");
+        return;
+      }
+
+      alert("회원탈퇴 중 오류가 발생했습니다.");
     }
   }
 
@@ -56,7 +87,6 @@ function Mypage() {
       actionLabel="일정짜기"
       onAction={() => navigate("/regions")}
     >
-
       <Typography
         sx={{
           fontSize: 26,
@@ -67,7 +97,6 @@ function Mypage() {
         생성된 여행 일정
       </Typography>
 
-      
       <Box
         sx={{
           position: "absolute",
@@ -79,10 +108,14 @@ function Mypage() {
           variant="contained"
           onClick={Logout_func}
           sx={{
-            background: "#ffffff99",
+            background: "#ffffff",
             color: "#000",
             fontWeight: 600,
-            "&:hover": { background: "#ffffffdd" },
+            boxShadow: "none",
+            border: "1px solid #d0d0d0",
+            "&:hover": {
+              background: "#f7f7f7",
+            },
           }}
         >
           로그아웃
@@ -98,17 +131,110 @@ function Mypage() {
       >
         <Button
           variant="contained"
-          onClick={Del_User_func}
+          onClick={handleOpenDeleteModal}
           sx={{
-            background: "#ffcccc",
-            color: "#a00000",
+            background: "#f7dcdc",
+            color: "#cf3c3c",
             fontWeight: 600,
-            "&:hover": { background: "#ffbbbb" },
+            boxShadow: "none",
+            border: "1px solid #e36e6e",
+            "&:hover": {
+              background: "#f3c0c0",
+            },
           }}
         >
           회원탈퇴
         </Button>
       </Box>
+
+      <Modal
+        open={openDeleteModal}
+        onClose={handleCloseDeleteModal}
+        aria-labelledby="delete-user-title"
+        aria-describedby="delete-user-description"
+        slotProps={{
+          backdrop: {
+            sx: {
+              backgroundColor: "rgba(0, 0, 0, 0.3)",
+              backdropFilter: "blur(3px)", 
+            },
+          },
+        }}
+      >
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: 520,
+            bgcolor: "#bfbfbf",
+            boxShadow: 24,
+            p: 6,
+            textAlign: "center",
+          }}
+        >
+          <Typography
+            id="delete-user-title"
+            variant="h4"
+            sx={{
+              fontWeight: 800,
+              mb: 3,
+              fontSize: 40,
+              textDecoration: "underline",
+              textDecorationThickness: "4px",
+              textDecorationColor: "#1e73be",
+              textUnderlineOffset: "8px",
+            }}
+          >
+            회원탈퇴
+          </Typography>
+
+          <Typography
+            id="delete-user-description"
+            sx={{
+              mb: 4,
+              fontSize: 16,
+              lineHeight: 1.6,
+            }}
+          >
+            회원 탈퇴를 하시려면, 비밀번호를 입력하세요
+          </Typography>
+
+          <TextField
+            type="password"
+            value={deletePassword}
+            onChange={(e) => setDeletePassword(e.target.value)}
+            fullWidth
+            placeholder="비밀번호"
+            InputProps={{
+              sx: {
+                bgcolor: "#e5e5e5",
+                "& fieldset": { border: "none" },
+              },
+            }}
+            sx={{ mb: 4 }}
+          />
+
+          <Button
+            variant="contained"
+            onClick={Del_User_func}
+            sx={{
+              background: "#f7dcdc",
+              color: "#cf3c3c",
+              fontWeight: 600,
+              boxShadow: "none",
+              border: "1px solid #e36e6e",
+              px: 4,
+              "&:hover": {
+                background: "#f3c0c0",
+              },
+            }}
+          >
+            회원탈퇴
+          </Button>
+        </Box>
+      </Modal>
     </PageLayout>
   );
 }
