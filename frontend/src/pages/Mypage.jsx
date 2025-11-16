@@ -34,11 +34,10 @@ function Mypage() {
       }
     } catch (err) {
       console.error(err);
-      alert("로그아웃 중 오류가 발생했습니다.");
     }
   }
 
-  // 회원탈퇴 (비밀번호 포함)
+  // 회원탈퇴
   async function Del_User_func() {
     if (!deletePassword) {
       alert("비밀번호를 입력해주세요.");
@@ -50,9 +49,7 @@ function Mypage() {
         "http://localhost:8080/api/v1/users/me",
         {
           headers: { Authorization: `Bearer ${token}` },
-          // ⚠ 백엔드에서 비밀번호를 어떻게 받는지에 맞춰 수정
-          // 예: body로 password 전달
-          data: { password: deletePassword },
+          data: { password: deletePassword }
         }
       );
 
@@ -76,8 +73,6 @@ function Mypage() {
         alert("인증이 필요합니다.");
         return;
       }
-
-      alert("회원탈퇴 중 오류가 발생했습니다.");
     }
   }
 
