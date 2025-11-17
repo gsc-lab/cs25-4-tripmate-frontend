@@ -15,6 +15,8 @@ function Regions() {
   const [country] = useState("KR");
   const [query] = useState("");
 
+  const [chooseRegion, setChooseRegion] = useState("");
+
   const handleOpen = async () => {
     setOpen(true);
     setLoading(true);
@@ -23,7 +25,7 @@ function Regions() {
 
     try {
       const res = await axios.get("http://localhost:8080/api/v1/regions", 
-        { input_value, headers: { Accept: "application/json" } }
+        { params: input_value, headers: { Accept: "application/json" } }
       );
 
       if (res.status === 200) {
@@ -54,11 +56,26 @@ function Regions() {
     setOptions([]);
   };
 
+  const handleSendRegion = () => {
+    if (!chooseRegion){
+      alert("지역을 선택해 주세요.");
+      return;
+    }
+    
+    navigate("/tripday", {
+      state: {
+        regionId: setChooseRegion.region_id,
+        regionName: setChooseRegion.name
+      },
+    });
+  };
+
+
   return (
     <PageLayout
       title="여행지역 선택"
       actionLabel="일자 선택"
-      onAction={() => navigate("/tripday")}
+      onAction={handleSendRegion}
     >
       <Autocomplete
         sx={{ width: 900 }}
