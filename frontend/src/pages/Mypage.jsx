@@ -22,7 +22,7 @@ function Mypage() {
   async function Logout_func() {
     try {
       const req = await axios.post(
-        "http://localhost:8080/api/v1/auth/logout",
+        "http://210.101.236.165:8000/api/v1/auth/logout",
         null,
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -46,7 +46,7 @@ function Mypage() {
 
     try {
       const req = await axios.delete(
-        "http://localhost:8080/api/v1/users/me",
+        "http://210.101.236.165:8000/api/v1/users/me",
         {
           headers: { Authorization: `Bearer ${token}` },
           data: { password: deletePassword }

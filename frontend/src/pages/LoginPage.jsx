@@ -24,7 +24,7 @@ function LoginPage() {
     const input_value = { email, password };
 
     try { // 서버에 axios로 입력한 데이터를 보냄
-      const req = await axios.post( "http://localhost:8080/api/v1/auth/login", input_value, { 
+      const req = await axios.post( "http://210.101.236.165:8000/api/v1/auth/login", input_value, { 
           headers: { "Content-Type": "application/json", Accept: "application/json" }
         }
       );
