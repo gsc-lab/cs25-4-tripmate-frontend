@@ -13,7 +13,7 @@ function Regions() {
   const [loading, setLoading] = useState(false);
 
   const [country] = useState("KR");
-  const [query] = useState("");
+  const [query] = useState(null);
 
   const [chooseRegion, setChooseRegion] = useState("");
 
