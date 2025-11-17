@@ -22,7 +22,7 @@ function Regions() {
     const input_value = { country, query };
 
     try {
-      const res = await axios.get("http://localhost:8080/api/v1/regions/search", 
+      const res = await axios.get("http://localhost:8080/api/v1/regions", 
         { input_value, headers: { Accept: "application/json" } }
       );
 
