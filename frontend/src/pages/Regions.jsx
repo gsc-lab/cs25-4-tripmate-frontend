@@ -62,10 +62,10 @@ function Regions() {
       return;
     }
     
-    navigate("/tripday", {
+    navigate("/trip", {
       state: {
-        regionId: ChooseRegion.region_id,
-        regionName: ChooseRegion.name
+        regionId: chooseRegion.region_id,
+        regionName: chooseRegion.name
       },
     });
   };
