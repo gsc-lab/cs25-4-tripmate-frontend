@@ -15,7 +15,7 @@ function Regions() {
   const [country] = useState("KR");
   const [query] = useState(null);
 
-  const [chooseRegion, setChooseRegion] = useState("");
+  const [chooseRegion, setChooseRegion] = useState(null);
 
   const handleOpen = async () => {
     setOpen(true);
@@ -62,10 +62,10 @@ function Regions() {
       return;
     }
     
-    navigate("/tripday", {
+    navigate("/trip", {
       state: {
-        regionId: setChooseRegion.region_id,
-        regionName: setChooseRegion.name
+        regionId: chooseRegion.region_id,
+        regionName: chooseRegion.name
       },
     });
   };
@@ -84,6 +84,8 @@ function Regions() {
         onClose={handleClose}
         options={options}
         loading={loading}
+        value={chooseRegion}
+        onChange={(event, newValue) => { setChooseRegion(newValue); }}
         isOptionEqualToValue={(option, value) => option.region_id === value.region_id}
         getOptionLabel={(option) => option.name ?? ""}
         renderInput={(params) => (
