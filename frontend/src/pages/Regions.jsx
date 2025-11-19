@@ -62,7 +62,7 @@ function Regions() {
       return;
     }
     
-    navigate("/tripday", {
+    navigate("/trip", {
       state: {
         regionId: chooseRegion.region_id,
         regionName: chooseRegion.name
