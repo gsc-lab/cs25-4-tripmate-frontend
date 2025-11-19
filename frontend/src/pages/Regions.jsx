@@ -64,8 +64,8 @@ function Regions() {
     
     navigate("/tripday", {
       state: {
-        regionId: ChooseRegion.region_id,
-        regionName: ChooseRegion.name
+        regionId: chooseRegion.region_id,
+        regionName: chooseRegion.name
       },
     });
   };
