@@ -47,7 +47,7 @@ function Trip() {
             end_date: endDate.format("YYYY-MM-DD") }
 
         try {
-            const req = await axios.post("http://localhost:8080/api/v1/trips", inputValue,
+            const req = await axios.post("http://210.101.236.165:8000/api/v1/trips", inputValue,
                 { headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" } }
             );
 

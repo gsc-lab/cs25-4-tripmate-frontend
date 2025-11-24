@@ -36,7 +36,7 @@ function GoogleMap() {
   const searchPlace = async () => {
     try {
       const req = await axios.get(
-        "http://localhost:8080/api/v1/places/external-search",
+        "http://210.101.236.165:8000/v1/places/external-search",
         {
           params: { place: inputPlace },
           headers: { Accept: "application/json" },
@@ -66,7 +66,7 @@ function GoogleMap() {
 
   const selectedPlace = async () => {
     try {
-      const req = await axios.get(`http://localhost:8080/api/v1/places/${place_id}`,
+      const req = await axios.get(`http://210.101.236.165:8000/api/v1/places/${place_id}`,
         { headers: { Accept: "application/json" } }
       )
 
@@ -136,7 +136,7 @@ function TripDay() {
 
   const getDays = async () => {
     try {
-      const req = await axios.get(`http://localhost:8080/api/v1/trips/${trip_id}/days`, 
+      const req = await axios.get(`http://210.101.236.165:8000/api/v1/trips/${trip_id}/days`, 
         { headers: { Authorization: `Bearer ${token}` } }
       )
 
@@ -167,7 +167,7 @@ function TripDay() {
 
     const inputValue = { day_no: dayNo, memo: memo ?? "" };
     try{
-      const req = await axios.post(`http://localhost:8080/api/v1/trips/${trip_id}/days`, inputValue ,
+      const req = await axios.post(`http://210.101.236.165:8000/api/v1/trips/${trip_id}/days`, inputValue ,
         { headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" } }
       )
 
