@@ -1,6 +1,7 @@
-import { use, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { Wrapper } from "@googlemaps/react-wrapper";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 function GoogleMap() {
@@ -161,6 +162,7 @@ function GoogleMap() {
 }
 
 function TripDay() {
+  const navigate = useNavigate();
   const location = useLocation();
   const trip_id = location.state?.trip_id;
   const token = localStorage.getItem("access_token");
@@ -303,6 +305,8 @@ function TripDay() {
           />
           <button onClick={addDay}>+</button>
       </div>
+
+      <button onClick={() => navigate('/mypage')}>일정 짜기 완료</button>
     </>
   );
 }
