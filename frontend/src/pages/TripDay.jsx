@@ -1,17 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { Wrapper } from "@googlemaps/react-wrapper";
-<<<<<<< HEAD
-import axios from "axios";
-
-function GoogleMap() {
-=======
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 function GoogleMap() {
   const token = localStorage.getItem("access_token");
->>>>>>> feature/tripday
   const mapRef = useRef(null);
   const mapPoint = useRef(null);
   const [inputPlace, setInputPlace] = useState("");
@@ -19,10 +13,7 @@ function GoogleMap() {
   const [lng, setLng] = useState(128.6219);
   const [place_id, setPlace_Id] = useState();
   const [selectPlace, setSelectPlace] = useState();
-<<<<<<< HEAD
-=======
   const [memo, setMemo] = useState(""); 
->>>>>>> feature/tripday
 
   useEffect(() => {
     if (!mapRef.current) return;
@@ -47,27 +38,13 @@ function GoogleMap() {
 
   const searchPlace = async () => {
     try {
-<<<<<<< HEAD
-      const req = await axios.get(
-        "http://localhost:8080/api/v1/places/external-search",
-        {
-          params: { place: inputPlace },
-          headers: { Accept: "application/json" },
-        }
-=======
       const req = await axios.get( "http://localhost:8080/api/v1/places/external-search", 
         { params: { place: inputPlace }, headers: { Accept: "application/json" }, }
->>>>>>> feature/tripday
       );
 
       if (req.status === 200) {
         console.log("외부 지도 기반 장소 검색 성공");
         const point = req.data.data.data[0];
-<<<<<<< HEAD
-        setLat(point.lat);
-        setLng(point.lng);
-        setPlace_Id(point.place_id);
-=======
         // console.log("외부 지도 기반 장소 검색 결과값",point);
         
         try {
@@ -106,7 +83,6 @@ function GoogleMap() {
             return;
           }
         }
->>>>>>> feature/tripday
       }
     } catch (err) {
       const status = err.response?.status;
@@ -127,11 +103,7 @@ function GoogleMap() {
       const req = await axios.get(`http://localhost:8080/api/v1/places/${place_id}`,
         { headers: { Accept: "application/json" } }
       )
-<<<<<<< HEAD
-
-=======
       
->>>>>>> feature/tripday
       if (req.status === 200) {
         setSelectPlace(req.data.data);
       }
@@ -143,11 +115,7 @@ function GoogleMap() {
         return;
       }
     }
-<<<<<<< HEAD
-  }
-=======
   };
->>>>>>> feature/tripday
 
   return (
     <>
@@ -179,14 +147,11 @@ function GoogleMap() {
             >
               <p>장소 이름: {selectPlace.name}</p>
               <p>장소 주소: {selectPlace.address}</p>
-<<<<<<< HEAD
-=======
               <input
               value={memo}
               onChange={(e) => setMemo(e.target.value)}
               placeholder="메모를 입력하세요."
               />
->>>>>>> feature/tripday
               <button>일자에 추가</button>
             </div>
           )}
@@ -197,19 +162,13 @@ function GoogleMap() {
 }
 
 function TripDay() {
-<<<<<<< HEAD
-=======
   const navigate = useNavigate();
->>>>>>> feature/tripday
   const location = useLocation();
   const trip_id = location.state?.trip_id;
   const token = localStorage.getItem("access_token");
   const [days, setDays] = useState([]);
   const [dayNo, setDayNo] = useState(1);
-<<<<<<< HEAD
-=======
   const day_no = dayNo;
->>>>>>> feature/tripday
   const [memo, setMemo] = useState(""); 
 
   useEffect(() => {
@@ -245,11 +204,7 @@ function TripDay() {
     }
   };
 
-<<<<<<< HEAD
-  async function addDay() {
-=======
   const addDay = async () => {
->>>>>>> feature/tripday
 
     const inputValue = { day_no: dayNo, memo: memo ?? "" };
     try{
@@ -259,10 +214,7 @@ function TripDay() {
 
       if (req.status === 201) {
         console.log("일차 생성 성공");
-<<<<<<< HEAD
-=======
         await getDays();
->>>>>>> feature/tripday
       }      
     } catch(err) {
       const status = err.response?.status;
@@ -285,9 +237,6 @@ function TripDay() {
       }
       console.log(err);
     }
-<<<<<<< HEAD
-  }
-=======
   };
 
   const delDay = async () => {
@@ -319,7 +268,6 @@ function TripDay() {
       }
     }
   };
->>>>>>> feature/tripday
 
   return (
     <>
@@ -332,17 +280,6 @@ function TripDay() {
         <ul>
           {days.map((day) => {
             return(
-<<<<<<< HEAD
-              <>
-                <li key={day.trip_day_id}>
-                  <strong>Day {day.day_no}</strong>
-                  <div>메모: {day.memo}</div>
-                  <button>메모 수정</button>
-                </li>
-              </>
-            )
-          })}
-=======
                 <li key={day.trip_day_id}>
                   <button onClick={delDay}>x</button>
                   <strong>Day {day.day_no}</strong>
@@ -354,7 +291,6 @@ function TripDay() {
               }
             )
           }
->>>>>>> feature/tripday
         </ul>
           <input
             type="number"
@@ -365,19 +301,12 @@ function TripDay() {
           <input
             value={memo}
             onChange={(e) => setMemo(e.target.value)}
-<<<<<<< HEAD
-            placeholder="메모를 입력하세요. (선택)"
-          />
-          <button onClick={addDay}>+</button>
-      </div>
-=======
             placeholder="메모를 입력하세요."
           />
           <button onClick={addDay}>+</button>
       </div>
 
       <button onClick={() => navigate('/mypage')}>일정 짜기 완료</button>
->>>>>>> feature/tripday
     </>
   );
 }
