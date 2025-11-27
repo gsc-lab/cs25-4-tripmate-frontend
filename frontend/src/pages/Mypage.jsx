@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Box, Button, Typography, Modal, TextField } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -7,6 +7,16 @@ import PageLayout from "../components/PageLayout";
 function Mypage() {
   const navigate = useNavigate();
   const token = localStorage.getItem("access_token");
+  const [page, setPage] = useState(1);
+  const [size] = useState(20);
+  const [sort, setSort] = useState(null);
+  const [regionId, setRegionId] = useState(null);
+  const [tripList, setTripList] = useState([]);
+
+  console.log(tripList);
+  useEffect(() => {
+    tripsList();
+  }, []);
 
   // 회원탈퇴 모달 상태
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
@@ -21,9 +31,7 @@ function Mypage() {
   // 로그아웃
   async function Logout_func() {
     try {
-      const req = await axios.post(
-        "http://210.101.236.165:8000/api/v1/auth/logout",
-        null,
+      const req = await axios.post( "http://210.101.236.165:8000/api/v1/auth/logout", null,
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
@@ -45,12 +53,8 @@ function Mypage() {
     }
 
     try {
-      const req = await axios.delete(
-        "http://210.101.236.165:8000/api/v1/users/me",
-        {
-          headers: { Authorization: `Bearer ${token}` },
-          data: { password: deletePassword }
-        }
+      const req = await axios.delete( "http://210.101.236.165:8000/api/v1/users/me",
+        { headers: { Authorization: `Bearer ${token}` }, data: { password: deletePassword } }
       );
 
       if (req?.status === 204) {
@@ -74,7 +78,67 @@ function Mypage() {
         return;
       }
     }
-  }
+  };
+
+  async function tripsList() {
+
+    const inputValue = {
+      page: page, 
+      size: size, 
+      sort: sort, 
+      region_id: regionId
+    }
+
+    try {
+      const req = await axios.get("http://210.101.236.165:8000/api/v1/trips", 
+        { params: inputValue, headers: { Authorization: `Bearer ${token}`} }
+      )
+
+      setTripList(req.data.data);
+      
+    } catch(err) {
+      const status = err.response?.status;
+
+      if (status === 401) {
+        alert("인증이 필요합니다.");
+        return;
+      }
+      if (status === 422) {
+        alert("요청 데이터가 유효하지 않습니다.");
+        return;
+      }
+    }
+  };
+
+  async function delTrip(trip_id) {
+    try{
+      const req = await axios.delete(`http://210.101.236.165:8000/api/v1/trips/${trip_id}`,
+        { headers: { Authorization: `Bearer ${token}`} }
+      );
+
+      if (req.status === 204) {
+        await tripsList();
+      }
+
+    } catch(err) {
+      const status = err.response?.status;
+
+      if (status === 401) {
+        alert("인증이 필요합니다.");
+        return;
+      }
+      if (status === 403) {
+        alert("접근 권한이 없습니다.");
+        return;
+      }
+      if (status === 404) {
+        alert("리소스를 찾을 수 없습니다.");
+        return;
+      }
+
+
+    }
+  };
 
   return (
     <PageLayout
@@ -91,6 +155,30 @@ function Mypage() {
       >
         생성된 여행 일정
       </Typography>
+
+      <Box sx={{ mt: 2 }}>
+        {tripList.length === 0 ? (
+          <Typography sx={{ textAlign: "center", color: "#666" }}>
+            생성된 일정이 없습니다.
+            </Typography>
+            ) : (
+              tripList.map((item) => (
+              <Typography 
+              key={item.id} 
+              sx={{ 
+                fontSize: 18,
+                mb: 1,
+                textAlign: "center",
+              }}
+              >
+                <button onClick={() => delTrip(item.trip_id)}>x</button>
+                {item.title}
+            </Typography>
+                )
+              )
+            )
+            }
+       </Box>
 
       <Box
         sx={{

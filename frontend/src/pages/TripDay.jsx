@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { Wrapper } from "@googlemaps/react-wrapper";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 function GoogleMap() {
+  const token = localStorage.getItem("access_token");
   const mapRef = useRef(null);
   const mapPoint = useRef(null);
   const [inputPlace, setInputPlace] = useState("");
@@ -11,6 +13,7 @@ function GoogleMap() {
   const [lng, setLng] = useState(128.6219);
   const [place_id, setPlace_Id] = useState();
   const [selectPlace, setSelectPlace] = useState();
+  const [memo, setMemo] = useState(""); 
 
   useEffect(() => {
     if (!mapRef.current) return;
@@ -35,20 +38,51 @@ function GoogleMap() {
 
   const searchPlace = async () => {
     try {
-      const req = await axios.get(
-        "http://210.101.236.165:8000/v1/places/external-search",
-        {
-          params: { place: inputPlace },
-          headers: { Accept: "application/json" },
-        }
+      const req = await axios.get( "http://210.101.236.165:8000/api/v1/places/external-search", 
+        { params: { place: inputPlace }, headers: { Accept: "application/json" }, }
       );
 
       if (req.status === 200) {
         console.log("외부 지도 기반 장소 검색 성공");
         const point = req.data.data.data[0];
-        setLat(point.lat);
-        setLng(point.lng);
-        setPlace_Id(point.place_id);
+        // console.log("외부 지도 기반 장소 검색 결과값",point);
+        
+        try {
+          const inputValue = {
+            external_ref: point.place_id,
+            name: point.name,
+            category: point.category,
+            address: point.address,
+            lat: point.lat,
+            lng: point.lng
+          }
+
+          const req2 = await axios.post("http://210.101.236.165:8000/api/v1/places/from-external", inputValue,
+            { headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" } }
+          );
+
+          const res = req2.data;
+          let realPoint = null;
+          if (res?.success) {
+            realPoint = res.data;
+            setLat(realPoint.lat);
+            setLng(realPoint.lng);
+            setPlace_Id(realPoint.place_id);
+          };
+
+
+        } catch(err) {
+          const status = err.response?.status;
+
+          if (status === 401) {
+            alert("인증이 필요합니다.");
+            return;
+          }
+          if (status === 422) {
+            alert("입력값이 유효하지 않습니다.22");
+            return;
+          }
+        }
       }
     } catch (err) {
       const status = err.response?.status;
@@ -69,7 +103,7 @@ function GoogleMap() {
       const req = await axios.get(`http://210.101.236.165:8000/api/v1/places/${place_id}`,
         { headers: { Accept: "application/json" } }
       )
-
+      
       if (req.status === 200) {
         setSelectPlace(req.data.data);
       }
@@ -81,7 +115,7 @@ function GoogleMap() {
         return;
       }
     }
-  }
+  };
 
   return (
     <>
@@ -113,6 +147,11 @@ function GoogleMap() {
             >
               <p>장소 이름: {selectPlace.name}</p>
               <p>장소 주소: {selectPlace.address}</p>
+              <input
+              value={memo}
+              onChange={(e) => setMemo(e.target.value)}
+              placeholder="메모를 입력하세요."
+              />
               <button>일자에 추가</button>
             </div>
           )}
@@ -123,11 +162,13 @@ function GoogleMap() {
 }
 
 function TripDay() {
+  const navigate = useNavigate();
   const location = useLocation();
   const trip_id = location.state?.trip_id;
   const token = localStorage.getItem("access_token");
   const [days, setDays] = useState([]);
   const [dayNo, setDayNo] = useState(1);
+  const day_no = dayNo;
   const [memo, setMemo] = useState(""); 
 
   useEffect(() => {
@@ -163,7 +204,7 @@ function TripDay() {
     }
   };
 
-  async function addDay() {
+  const addDay = async () => {
 
     const inputValue = { day_no: dayNo, memo: memo ?? "" };
     try{
@@ -173,6 +214,7 @@ function TripDay() {
 
       if (req.status === 201) {
         console.log("일차 생성 성공");
+        await getDays();
       }      
     } catch(err) {
       const status = err.response?.status;
@@ -195,7 +237,37 @@ function TripDay() {
       }
       console.log(err);
     }
-  }
+  };
+
+  const delDay = async () => {
+
+    try {
+      const req = await axios.delete(`http://210.101.236.165:8000/api/v1/trips/${trip_id}/days/${day_no}`, 
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      if (req.status === 204 || null) {
+        console.log("일차 삭제 완료");
+        await getDays();
+      }
+
+    } catch(err) {
+      const status = err.response?.status;
+
+      if (status === 401) {
+        alert("인증이 필요합니다.");
+        return;
+      }
+      if (status === 403) {
+        alert("접근 권한이 없습니다.");
+        return;
+      }
+      if (status === 404) {
+        alert("리소스를 찾을 수 없습니다.");
+        return;
+      }
+    }
+  };
 
   return (
     <>
@@ -208,15 +280,17 @@ function TripDay() {
         <ul>
           {days.map((day) => {
             return(
-              <>
                 <li key={day.trip_day_id}>
+                  <button onClick={delDay}>x</button>
                   <strong>Day {day.day_no}</strong>
+                  {}
                   <div>메모: {day.memo}</div>
                   <button>메모 수정</button>
                 </li>
-              </>
+                )
+              }
             )
-          })}
+          }
         </ul>
           <input
             type="number"
@@ -227,10 +301,12 @@ function TripDay() {
           <input
             value={memo}
             onChange={(e) => setMemo(e.target.value)}
-            placeholder="메모를 입력하세요. (선택)"
+            placeholder="메모를 입력하세요."
           />
           <button onClick={addDay}>+</button>
       </div>
+
+      <button onClick={() => navigate('/mypage')}>일정 짜기 완료</button>
     </>
   );
 }
