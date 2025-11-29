@@ -21,9 +21,7 @@ function Mypage() {
   // 로그아웃
   async function Logout_func() {
     try {
-      const req = await axios.post(
-        "http://localhost:8080/api/v1/auth/logout",
-        null,
+      const req = await axios.post( "http://localhost:8080/api/v1/auth/logout", null,
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
@@ -45,12 +43,8 @@ function Mypage() {
     }
 
     try {
-      const req = await axios.delete(
-        "http://localhost:8080/api/v1/users/me",
-        {
-          headers: { Authorization: `Bearer ${token}` },
-          data: { password: deletePassword }
-        }
+      const req = await axios.delete( "http://localhost:8080/api/v1/users/me",
+        { headers: { Authorization: `Bearer ${token}` }, data: { password: deletePassword } }
       );
 
       if (req?.status === 204) {
@@ -66,10 +60,12 @@ function Mypage() {
       if (err?.response?.status === 404) {
         alert("해당 유저를 찾을 수 없습니다.");
         return;
-      } else if (err?.response?.status === 422) {
+      }
+      if (err?.response?.status === 422) {
         alert("입력값이 유효하지 않습니다.");
         return;
-      } else if (err?.response?.status === 401) {
+      }
+      if (err?.response?.status === 401) {
         alert("인증이 필요합니다.");
         return;
       }
