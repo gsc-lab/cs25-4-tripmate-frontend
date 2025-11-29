@@ -245,7 +245,6 @@ function TripDay() {
       );
 
       if (req.status === 200) {
-        // 전체 일차 목록 다시 불러오기
         await getDays();
       }
 
@@ -376,7 +375,6 @@ function TripDay() {
   };
 
   const delSchedule = async (targetDayNo, scheduleItemId) => {
-    console.log("삭제 요청 day_no / schedule_item_id:", targetDayNo, scheduleItemId);
     try {
       const req = await axios.delete(
         `http://localhost:8080/api/v1/trips/${trip_id}/days/${targetDayNo}/items/${scheduleItemId}`,
@@ -404,6 +402,46 @@ function TripDay() {
       }
       if (status === 404) {
         alert("리소스를 찾을 수 없습니다.");
+        return;
+      }
+      console.log(err.response);
+    }
+  };
+
+  const editSchedule = async (dayNo, item) => {
+    const newMemo = window.prompt("새 스케줄 메모를 입력하세요.", item.memo || "");
+    if (newMemo === null) {
+      return;
+    }
+
+    const inputValue = { memo: newMemo };
+
+    try {
+      const req = await axios.patch(`http://localhost:8080/api/v1/trips/${trip_id}/days/${dayNo}/items/${item.schedule_item_id}`, inputValue,
+        { headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json", }, }
+      );
+
+      if (req.status === 200) {
+        console.log("스케줄 메모 수정 성공");
+        await getSchedule(dayNo);  
+      }
+    } catch (err) {
+      const status = err.response?.status;
+
+      if (status === 401) {
+        alert("인증이 필요합니다.");
+        return;
+      }
+      if (status === 403) {
+        alert("접근 권한이 없습니다.");
+        return;
+      }
+      if (status === 404) {
+        alert("리소스를 찾을 수 없습니다.");
+        return;
+      }
+      if (status === 422) {
+        alert("요청 데이터가 유효하지 않습니다.");
         return;
       }
       console.log(err.response);
@@ -440,16 +478,14 @@ function TripDay() {
                     {scheduleItems.map((item) => (
                       <li key={item.schedule_item_id}>
                         <button
-                          onClick={() =>
-                            delSchedule(day.day_no, item.schedule_item_id)
-                          }
-                        >
-                          x
-                        </button>
+                          onClick={() => delSchedule(day.day_no, item.schedule_item_id)}
+                          >x</button>
                         {item.seq_no}.{" "}
                         {item.place_name && `[${item.place_name}] `}
                         {item.memo ?? "(메모 없음)"}
                         {item.visit_time && ` (${item.visit_time})`}
+                        <button onClick={() => editSchedule(day.day_no, item)}
+                          >수정</button>
                       </li>
                     ))}
                   </ul>
