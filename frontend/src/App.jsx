@@ -3,8 +3,7 @@ import LoginPage from "./pages/LoginPage";
 import Register from "./pages/Register";
 import Mypage from "./pages/Mypage";
 import Regions from "./pages/Regions";
-import Trip from "./pages/Trip";
-import TripDay from "./pages/TripDay";
+import View from "./pages/View";
 
 
 function App() {
@@ -15,9 +14,8 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<Register />} />
         <Route path="/mypage" element={<Mypage />} />
+        <Route path="/viewpage" element={<View />} />
         <Route path="/regions" element={<Regions />} />
-        <Route path="/trip" element={<Trip />} />
-        <Route path="/tripday" element={<TripDay />} />
       </Routes>
     </Router>
     </>
