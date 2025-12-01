@@ -54,11 +54,11 @@ function GoogleMap({ setPlace_Id }) {
             lng: point.lng
           }
 
-          const req2 = await axios.post("http://localhost:8080/api/v1/places/from-external", inputValue,
+          const reqForSave = await axios.post("http://localhost:8080/api/v1/places/from-external", inputValue,
             { headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" } }
           );
 
-          const res = req2.data;
+          const res = reqForSave.data;
           let realPoint = null;
           if (res?.success) {
             realPoint = res.data;
@@ -124,7 +124,7 @@ function TripDay() {
   const token = localStorage.getItem("access_token");
   const [days, setDays] = useState([]);
   const [dayNo, setDayNo] = useState(1);
-  const day_no = dayNo;
+
   const [place_id, setPlace_Id] = useState();
   const [placeView, setPlaceView] = useState();
   const [dayMemo, setDayMemo] = useState(""); 
