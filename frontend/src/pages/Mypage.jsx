@@ -22,7 +22,7 @@ function Mypage() {
 
   const userInfo = async () => {
     try {
-      const req = await axios.get("http://localhost:8080/api/v1/users/me", 
+      const req = await axios.get("http://210.101.236.165:8000/api/v1/users/me", 
         { headers: { Authorization: `Bearer ${token}`} }
       );
 

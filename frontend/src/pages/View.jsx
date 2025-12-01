@@ -64,7 +64,7 @@ function View() {
 
     const tripView = async () => {
         try {
-            const req = await axios.get(`http://localhost:8080/api/v1/trips/${trip_id}`, 
+            const req = await axios.get(`http://210.101.236.165:8000/api/v1/trips/${trip_id}`, 
                 { headers: { Authorization: `Bearer ${token}` } }
             );
 
@@ -92,7 +92,7 @@ function View() {
 
     const getDays = async () => {
         try {
-        const req = await axios.get(`http://localhost:8080/api/v1/trips/${trip_id}/days`, 
+        const req = await axios.get(`http://210.101.236.165:8000/api/v1/trips/${trip_id}/days`, 
             { headers: { Authorization: `Bearer ${token}` } }
         )
 
@@ -121,8 +121,7 @@ function View() {
 
     const getSchedule = async (targetDayNo) => {
         try {
-        const req = await axios.get(
-            `http://localhost:8080/api/v1/trips/${trip_id}/days/${targetDayNo}/items`,
+        const req = await axios.get(`http://210.101.236.165:8000/v1/trips/${trip_id}/days/${targetDayNo}/items`,
             { params: { page: 1, size: 20 }, headers: { Authorization: `Bearer ${token}` } }
         );
 
@@ -156,7 +155,7 @@ function View() {
 
     const checkLocationUnit = async (placeId) => {
         try {
-            const req = await axios.get(`http://localhost:8080/api/v1/places/${placeId}`, 
+            const req = await axios.get(`http://210.101.236.165:8000/api/v1/places/${placeId}`, 
                 { headers: { Accept: "application/json" } }
             );
 
