@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 // import RegisterPage from "./pages/RegisterPage";
 import Mypage from "./pages/Mypage";
 // import Regions from "./pages/Regions";
+import View from "./pages/View";
 
 
 function App() {
@@ -12,6 +13,7 @@ function App() {
         {/* <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} /> */}
         <Route path="/mypage" element={<Mypage />} />
+        <Route path="/viewpage" element={<View />} />
         {/* <Route path="/regions" element={<Regions />} /> */}
       </Routes>
     </Router>

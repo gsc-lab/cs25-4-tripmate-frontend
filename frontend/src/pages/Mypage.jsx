@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Box, Button, Typography, Modal, TextField } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import PageLayout from "../components/PageLayout";
 
@@ -43,7 +43,7 @@ function Mypage() {
     } catch (err) {
       console.error(err);
     }
-  }
+  };
 
   // 회원탈퇴
   async function Del_User_func() {
@@ -163,17 +163,24 @@ function Mypage() {
             </Typography>
             ) : (
               tripList.map((item) => (
-              <Typography 
-              key={item.id} 
-              sx={{ 
-                fontSize: 18,
-                mb: 1,
-                textAlign: "center",
-              }}
+              <Typography
+                key={item.id}
+                sx={{
+                  fontSize: 18,
+                  mb: 1,
+                  textAlign: "center",
+                }}
               >
                 <button onClick={() => delTrip(item.trip_id)}>x</button>
-                {item.title}
-            </Typography>
+                <Link 
+                  to="/viewpage"
+                  state={{ tripId: item.trip_id, title: item.title }}
+                  style={{ textDecoration: "none", color: "inherit" }} 
+                >
+                  {item.title}
+                </Link>
+                
+              </Typography>
                 )
               )
             )
