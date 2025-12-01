@@ -1,17 +1,13 @@
 import { useState, useRef, useEffect } from "react";
-import { Box,Typography } from "@mui/material";
-import { useLocation, useNavigate, Link } from "react-router-dom";
+import { Box,Typography } from "@mui/material"; 
+import { useLocation, useNavigate } from "react-router-dom";
 import { Wrapper } from "@googlemaps/react-wrapper";
 import axios from "axios";
 import PageLayout from "../components/PageLayout";
 
-function GoogleMap({ place_id }) {
+function GoogleMap({ lat, lng }) {
   const mapRef = useRef(null);
   const mapPoint = useRef(null);
-  const [lat, setLat] = useState(35.896);
-  const [lng, setLng] = useState(128.6219);
-  const [checkLocaUnit, setCheckLocaUnit] = useState(null);
-
 
   useEffect(() => {
     if (!mapRef.current) return;
@@ -34,38 +30,18 @@ function GoogleMap({ place_id }) {
     });
   }, [lat, lng]);
 
-  const checkLocationUnit = async () => {
-    try {
-        const req = await axios.get(`http://localhost:8080/api/v1/places/${place_id}`, 
-            { headers: { Accept: "application/json" } }
-        );
-
-        console.log("장소 단건 조회 완료!", req.data.data);
-        setCheckLocaUnit(req.data.data);
-
-    } catch(err) {
-        const status = err.response?.status;
-
-        if (status === 422) {
-            alert("입력값이 유효하지 않습니다.");
-            return;
-        }
-    }
-  };
   return (
-        <>
-        <div style={{ display: "flex", gap: "16px", marginTop: "8px" }}>
-            <div style={{ width: "70%" }}>
-            <div
-                ref={mapRef}
-                id="map"
-                style={{ width: "100%", height: "600px" }}
-            />
-            </div>
-        </div>
-        </>
-        );
-    }
+    <div style={{ display: "flex", gap: "16px", marginTop: "8px" }}>
+      <div style={{ width: "70%" }}>
+        <div
+          ref={mapRef}
+          id="map"
+          style={{ width: "100%", height: "600px" }}
+        />
+      </div>
+    </div>
+  );
+}
 
 function View() {
     const token = localStorage.getItem("access_token");
@@ -73,11 +49,13 @@ function View() {
 
     const { state } = useLocation();
     const trip_id = state?.tripId;
+    const region_name = state?.regionName
     const [trip, setTrip] = useState(null);
     const [days, setDays] = useState([]);
     const [scheduleItems, setScheduleItems] = useState([]);
     const [selectedDayNo, setSelectedDayNo] = useState(null);
-    const [dayNo, setDayNo] = useState(1);
+    const [lat, setLat] = useState(35.896);
+    const [lng, setLng] = useState(128.6219); 
 
     useEffect(() => {
         tripView();
@@ -175,6 +153,27 @@ function View() {
         console.log(err.response);
         }
     };
+
+    const checkLocationUnit = async (placeId) => {
+        try {
+            const req = await axios.get(`http://localhost:8080/api/v1/places/${placeId}`, 
+                { headers: { Accept: "application/json" } }
+            );
+
+            console.log("장소 단건 조회 완료!", req.data.data);
+            const place = req.data.data;
+            setLat(place.lat);
+            setLng(place.lng);
+
+        } catch(err) {
+            const status = err.response?.status;
+
+            if (status === 422) {
+                alert("입력값이 유효하지 않습니다.");
+                return;
+            }
+        }
+    };
     
     return (
         <PageLayout
@@ -187,7 +186,7 @@ function View() {
                 제목: {trip?.title}
                 </Typography>
                 <Typography sx={{ mb: 1 }}>
-                지역: {trip?.region_name}
+                지역: {region_name}
                 </Typography>
                 <Typography sx={{ mb: 1 }}>
                 여행 날짜: {trip?.start_date} ~ {trip?.end_date}
@@ -198,7 +197,7 @@ function View() {
             </Box>
             
             <Wrapper apiKey={import.meta.env.VITE_GOOGLE_MAPS_KEY}>
-                <GoogleMap setPlace_Id={scheduleItems.place_id} />
+                <GoogleMap lat={lat} lng={lng} />
             </Wrapper>
             
             <ul>
@@ -209,9 +208,7 @@ function View() {
                     <button
                     onClick={() => {
                         setSelectedDayNo(day.day_no);
-                        setDayNo(day.day_no);
                         getSchedule(day.day_no);
-                        // selectPlaceView();
                     }}
                     >
                     일정 보기
@@ -222,7 +219,12 @@ function View() {
                         {scheduleItems.map((item) => (
                         <li key={item.schedule_item_id}>
                             {item.seq_no}.{" "}
-                            <Link>{item.place_name && `[${item.place_name}] `}</Link>
+                            <span
+                            onClick={() => checkLocationUnit(item.place_id)}
+                            style={{ cursor: "pointer", textDecoration: "underline" }}
+                            >
+                            {item.place_name && `[${item.place_name}] `}
+                            </span>
                             {item.memo ?? "(메모 없음)"}
                             {item.visit_time && ` (${item.visit_time})`}
                         </li>
