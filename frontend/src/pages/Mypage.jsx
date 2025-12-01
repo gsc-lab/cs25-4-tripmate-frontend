@@ -95,10 +95,12 @@ function Mypage() {
       if (err?.response?.status === 404) {
         alert("해당 유저를 찾을 수 없습니다.");
         return;
-      } else if (err?.response?.status === 422) {
+      }
+      if (err?.response?.status === 422) {
         alert("입력값이 유효하지 않습니다.");
         return;
-      } else if (err?.response?.status === 401) {
+      }
+      if (err?.response?.status === 401) {
         alert("인증이 필요합니다.");
         return;
       }
