@@ -12,6 +12,26 @@ function GoogleMap({ setPlace_Id }) {
   const [lat, setLat] = useState(35.896);
   const [lng, setLng] = useState(128.6219);
 
+  const [suggestions, setSuggestions] = useState([]);
+  
+  const autoSearching = async () => {
+    try {
+      let sessionToken = crypto.randomUUID();
+      
+      const reqForAuto = await axios.get("http://localhost:8080/api/v1/places/autocomplete", 
+        { params: { input: inputPlace, session_token: sessionToken } }
+      );
+      
+      console.log("자동 완성 성공", reqForAuto);
+      
+    } catch(err) {
+      console.log(err);
+    }
+  };
+
+  useEffect(() => {
+    autoSearching(inputPlace);
+  }, [inputPlace]);
 
   useEffect(() => {
     if (!mapRef.current) return;
@@ -81,6 +101,7 @@ function GoogleMap({ setPlace_Id }) {
           }
         }
       }
+
     } catch (err) {
       const status = err.response?.status;
 
