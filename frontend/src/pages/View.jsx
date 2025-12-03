@@ -119,7 +119,7 @@ function View() {
 
     const getSchedule = async (targetDayNo) => {
         try {
-        const req = await axios.get(`http://210.101.236.165:8000/v1/trips/${trip_id}/days/${targetDayNo}/items`,
+        const req = await axios.get(`http://210.101.236.165:8000/api/v1/trips/${trip_id}/days/${targetDayNo}/items`,
             { params: { page: 1, size: 20 }, headers: { Authorization: `Bearer ${token}` } }
         );
 
