@@ -1,8 +1,11 @@
 import { useEffect, useRef, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Wrapper } from "@googlemaps/react-wrapper";
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
+
+import PageLayout from "../components/PageLayout";
+import { Box, Grid, Paper, Typography, Button, TextField, Stack, IconButton, Divider, Chip } from "@mui/material";
+import { Delete, Edit, Add } from "@mui/icons-material";
 
 function GoogleMap({ setPlace_Id }) {
   const token = localStorage.getItem("access_token");
@@ -12,26 +15,6 @@ function GoogleMap({ setPlace_Id }) {
   const [lat, setLat] = useState(35.896);
   const [lng, setLng] = useState(128.6219);
 
-  const [suggestions, setSuggestions] = useState([]);
-  
-  const autoSearching = async () => {
-    try {
-      let sessionToken = crypto.randomUUID();
-      
-      const reqForAuto = await axios.get("http://localhost:8080/api/v1/places/autocomplete", 
-        { params: { input: inputPlace, session_token: sessionToken } }
-      );
-      
-      console.log("자동 완성 성공", reqForAuto);
-      
-    } catch(err) {
-      console.log(err);
-    }
-  };
-
-  useEffect(() => {
-    autoSearching(inputPlace);
-  }, [inputPlace]);
 
   useEffect(() => {
     if (!mapRef.current) return;
@@ -122,11 +105,18 @@ function GoogleMap({ setPlace_Id }) {
         value={inputPlace}
         onChange={(e) => setInputPlace(e.target.value)}
         placeholder="장소명을 입력하세요"
+        style={{
+          width: "1000px",
+          padding: "10px",
+          borderRadius: "8px",
+          border: "1px solid #ccc",
+          boxSizing: "border-box"
+        }}
       />
       <button onClick={searchPlace}>검색</button>
 
       <div style={{ display: "flex", gap: "16px", marginTop: "8px" }}>
-        <div style={{ width: "70%" }}>
+        <div style={{ width: "100%" }}>
           <div
             ref={mapRef}
             id="map"
@@ -227,8 +217,7 @@ function TripDay() {
 
   const delDay = async (targetDayNo) => {
     try {
-      const req = await axios.delete(
-        `http://localhost:8080/api/v1/trips/${trip_id}/days/${targetDayNo}`,
+      const req = await axios.delete(`http://localhost:8080/api/v1/trips/${trip_id}/days/${targetDayNo}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
@@ -322,8 +311,7 @@ function TripDay() {
     };
 
     try {
-      const req = await axios.post(
-        `http://localhost:8080/api/v1/trips/${trip_id}/days/${selectedDayNo}/items`, inputValue,
+      const req = await axios.post(`http://localhost:8080/api/v1/trips/${trip_id}/days/${selectedDayNo}/items`, inputValue,
         { headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json", } }
       );
 
@@ -362,8 +350,7 @@ function TripDay() {
 
   const getSchedule = async (targetDayNo) => {
     try {
-      const req = await axios.get(
-        `http://localhost:8080/api/v1/trips/${trip_id}/days/${targetDayNo}/items`,
+      const req = await axios.get(`http://localhost:8080/api/v1/trips/${trip_id}/days/${targetDayNo}/items`,
         { params: { page: 1, size: 20 }, headers: { Authorization: `Bearer ${token}` } }
       );
 
@@ -397,18 +384,13 @@ function TripDay() {
 
   const delSchedule = async (targetDayNo, scheduleItemId) => {
     try {
-      const req = await axios.delete(
-        `http://localhost:8080/api/v1/trips/${trip_id}/days/${targetDayNo}/items/${scheduleItemId}`,
+      const req = await axios.delete(`http://localhost:8080/api/v1/trips/${trip_id}/days/${targetDayNo}/items/${scheduleItemId}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
       if (req.status === 204) {
         console.log("일정 스케줄 삭제 성공");
-
-        // 화면에서 바로 지워주기
-        setScheduleItems((prev) =>
-          prev.filter((item) => item.schedule_item_id !== scheduleItemId)
-        );
+        await getSchedule(targetDayNo);
       }
     } catch (err) {
       const status = err.response?.status;
@@ -470,105 +452,280 @@ function TripDay() {
   };
 
   return (
-    <>
-      <h1>여행 스케줄 짜기</h1>
-      <Wrapper apiKey={import.meta.env.VITE_GOOGLE_MAPS_KEY}>
-        <GoogleMap setPlace_Id={setPlace_Id} />
-      </Wrapper>
-      <div>
-        <h2>일자별 스케줄</h2>
-        <ul>
-          {days.map((day) => {
-            return (
-              <li key={day.trip_day_id}>
-                <button onClick={() => delDay(day.day_no)}>x</button>
-                <strong>Day {day.day_no}</strong>
-                <button
-                  onClick={() => {
-                    setSelectedDayNo(day.day_no);
-                    setDayNo(day.day_no);
-                    getSchedule(day.day_no);
-                    selectPlaceView();
-                  }}
-                >
-                  일정 추가
-                </button>
+    <PageLayout
+      title="여행 스케줄 짜기"
+      actionLabel="마이페이지로"
+      onAction={() => navigate("/mypage")}
+    >
+      <Grid container spacing={2} sx={{ height: "calc(100vh - 120px)" }}>
+        {/* 왼쪽: 지도 영역 */}
+        <Grid item xs={12} md={9} sx={{ height: { height: "100%" } }}>
+          <Paper
+            elevation={3}
+            sx={{
+              height: "100%",
+              minHeight: 550,
+              borderRadius: 2,
+              overflow: "hidden",
+            }}
+          >
+            <Box sx={{ height: "100%" }}>
+              <Wrapper apiKey={import.meta.env.VITE_GOOGLE_MAPS_KEY}>
+                <GoogleMap setPlace_Id={setPlace_Id} />
+              </Wrapper>
+            </Box>
+          </Paper>
+        </Grid>
 
-                {selectedDayNo === day.day_no && (
-                  <ul>
-                    {scheduleItems.map((item) => (
-                      <li key={item.schedule_item_id}>
-                        <button
-                          onClick={() => delSchedule(day.day_no, item.schedule_item_id)}
-                          >x</button>
-                        {item.seq_no}.{" "}
-                        {item.place_name && `[${item.place_name}] `}
-                        {item.memo ?? "(메모 없음)"}
-                        {item.visit_time && ` (${item.visit_time})`}
-                        <button onClick={() => editSchedule(day.day_no, item)}
-                          >수정</button>
-                      </li>
-                    ))}
-                  </ul>
-                )}
+        {/* 오른쪽: 스케줄 영역 */}
+        <Grid item xs={12} md={3} sx={{ height: "100%" }}>
+          <Stack spacing={2} sx={{ height: "100%" }}>
+            {/* 제목 */}
+            <Box>
+              <Typography variant="h5" gutterBottom>
+                일자별 스케줄
+              </Typography>
+            </Box>
 
-                <div>메모: {day.memo}</div>
-                <button onClick={() => editDayMemo(day)}>메모 수정</button>
-              </li>
-            );
-          })}
-        </ul>
-
-        <div style={{ flex: 1 }}>
-          {placeView && selectedDayNo && (
-            <div
-              style={{
-                backgroundColor: "#eee",
-                padding: "16px",
-                borderRadius: "8px",
+            {/* Day 리스트 */}
+            <Paper
+              elevation={2}
+              sx={{
+                flex: 1,
+                p: 2,
+                borderRadius: 2,
+                overflowY: "auto",
               }}
             >
-              <p>Day {selectedDayNo} 에 추가할 일정</p>
-              <p>장소 이름: {placeView.name}</p>
-              <p>장소 주소: {placeView.address}</p>
+              <Stack spacing={2}>
+                {days.map((day) => (
+                  <Box
+                    key={day.trip_day_id}
+                    sx={{
+                      borderRadius: 2,
+                      border: "1px solid #e0e0e0",
+                      p: 1.5,
+                      bgcolor:
+                        selectedDayNo === day.day_no ? "grey.50" : "background.paper",
+                    }}
+                  >
+                    {/* Day 헤더 */}
+                    <Stack
+                      direction="row"
+                      alignItems="center"
+                      justifyContent="space-between"
+                      spacing={1}
+                    >
+                      <Stack direction="row" spacing={1} alignItems="center">
+                        <Chip
+                          label={`Day ${day.day_no}`}
+                          color="primary"
+                          size="small"
+                        />
+                        <Typography variant="body2" color="text.secondary">
+                          메모: {day.memo || "메모 없음"}
+                        </Typography>
+                      </Stack>
 
-              <input
-                type="number"
-                value={scheNo}
-                onChange={(e) => setScheNo(e.target.value)}
-              />
-              <input
-                type="time"
-                value={scheTime || ""}
-                onChange={(e) => setScheTime(e.target.value)}
-              />
-              <input
-                value={scheMemo || ""}
-                onChange={(e) => setScheMemo(e.target.value)}
-                placeholder="스케줄 메모 입력"
-              />
-              <button onClick={addSchedule}>일정 추가요</button>
-            </div>
-          )}
-        </div>
+                      <Stack direction="row" spacing={1} alignItems="center">
+                        <Button
+                          size="small"
+                          variant="outlined"
+                          onClick={() => editDayMemo(day)}
+                        >
+                          메모 수정
+                        </Button>
+                        <IconButton
+                          size="small"
+                          color="error"
+                          onClick={() => delDay(day.day_no)}
+                        >
+                          <Delete fontSize="small" />
+                        </IconButton>
+                      </Stack>
+                    </Stack>
 
-        <input
-          type="number"
-          value={dayNo}
-          onChange={(e) => setDayNo(e.target.value)}
-          placeholder="추가할 일차를 입력하세요."
-        />
-        <input
-          value={dayMemo}
-          onChange={(e) => setDayMemo(e.target.value)}
-          placeholder="메모를 입력하세요."
-        />
-        <button onClick={addDay}>+</button>
-      </div>
+                    {/* 일정 리스트 */}
+                    {selectedDayNo === day.day_no && (
+                      <Box mt={1.5}>
+                        <Divider sx={{ mb: 1 }} />
+                        <Stack spacing={1}>
+                          {scheduleItems.map((item) => (
+                            <Box
+                              key={item.schedule_item_id}
+                              sx={{
+                                display: "flex",
+                                alignItems: "flex-start",
+                                justifyContent: "space-between",
+                                p: 1,
+                                borderRadius: 1.5,
+                                bgcolor: "grey.100",
+                              }}
+                            >
+                              <Box sx={{ flex: 1, mr: 1 }}>
+                                <Typography variant="body2">
+                                  <strong>{item.seq_no}.</strong>{" "}
+                                  {item.place_name && `[${item.place_name}] `}
+                                  {item.memo ?? "(메모 없음)"}
+                                </Typography>
+                                {item.visit_time && (
+                                  <Typography
+                                    variant="caption"
+                                    color="text.secondary"
+                                  >
+                                    방문 시간: {item.visit_time}
+                                  </Typography>
+                                )}
+                              </Box>
 
-      <button onClick={() => navigate('/mypage')}>일정 짜기 완료</button>
-    </>
+                              <Stack direction="row" spacing={0.5}>
+                                <IconButton
+                                  size="small"
+                                  onClick={() =>
+                                    editSchedule(day.day_no, item)
+                                  }
+                                >
+                                  <Edit fontSize="small" />
+                                </IconButton>
+                                <IconButton
+                                  size="small"
+                                  color="error"
+                                  onClick={() =>
+                                    delSchedule(day.day_no, item.schedule_item_id)
+                                  }
+                                >
+                                  <Delete fontSize="small" />
+                                </IconButton>
+                              </Stack>
+                            </Box>
+                          ))}
+                        </Stack>
+                      </Box>
+                    )}
+
+                    {/* 일정 추가 버튼 */}
+                    <Box mt={1.5}>
+                      <Button
+                        size="small"
+                        fullWidth
+                        variant="contained"
+                        onClick={() => {
+                          setSelectedDayNo(day.day_no);
+                          setDayNo(day.day_no);
+                          getSchedule(day.day_no);
+                          selectPlaceView();
+                        }}
+                      >
+                        일정 추가
+                      </Button>
+                    </Box>
+                  </Box>
+                ))}
+
+                {days.length === 0 && (
+                  <Typography variant="body2" color="text.secondary">
+                    아직 등록된 Day가 없습니다. 아래에서 일차를 먼저 추가해 주세요.
+                  </Typography>
+                )}
+              </Stack>
+            </Paper>
+
+            {/* 선택된 장소에 일정 추가 패널 */}
+            {placeView && selectedDayNo && (
+              <Paper
+                elevation={3}
+                sx={{
+                  p: 2,
+                  borderRadius: 2,
+                  bgcolor: "grey.50",
+                }}
+              >
+                <Typography variant="subtitle1" gutterBottom>
+                  Day {selectedDayNo} 에 추가할 일정
+                </Typography>
+                <Typography variant="body2">
+                  <strong>장소 이름:</strong> {placeView.name}
+                </Typography>
+                <Typography variant="body2" gutterBottom>
+                  <strong>장소 주소:</strong> {placeView.address}
+                </Typography>
+
+                <Stack spacing={1.5} mt={1.5}>
+                  <TextField
+                    label="순서 (번호)"
+                    type="number"
+                    size="small"
+                    fullWidth
+                    value={scheNo}
+                    onChange={(e) => setScheNo(e.target.value)}
+                  />
+                  <TextField
+                    label="방문 시간"
+                    type="time"
+                    size="small"
+                    fullWidth
+                    InputLabelProps={{ shrink: true }}
+                    value={scheTime || ""}
+                    onChange={(e) => setScheTime(e.target.value)}
+                  />
+                  <TextField
+                    label="스케줄 메모"
+                    size="small"
+                    fullWidth
+                    value={scheMemo || ""}
+                    onChange={(e) => setScheMemo(e.target.value)}
+                    placeholder="스케줄 메모를 입력하세요."
+                  />
+                  <Button
+                    variant="contained"
+                    startIcon={<Add />}
+                    onClick={addSchedule}
+                  >
+                    일정 추가
+                  </Button>
+                </Stack>
+              </Paper>
+            )}
+
+            {/* Day 추가 영역 */}
+            <Paper elevation={1} sx={{ p: 2, borderRadius: 2 }}>
+              <Typography variant="subtitle2" gutterBottom>
+                Day 추가
+              </Typography>
+              <Stack direction="row" spacing={1}>
+                <TextField
+                  label="일차 (숫자)"
+                  type="number"
+                  size="small"
+                  value={dayNo}
+                  onChange={(e) => setDayNo(e.target.value)}
+                  sx={{ width: "35%" }}
+                />
+                <TextField
+                  label="메모"
+                  size="small"
+                  value={dayMemo}
+                  onChange={(e) => setDayMemo(e.target.value)}
+                  placeholder="메모를 입력하세요."
+                  sx={{ flex: 1 }}
+                />
+                <Button
+                  variant="contained"
+                  startIcon={<Add />}
+                  onClick={addDay}
+                >
+                  추가
+                </Button>
+              </Stack>
+            </Paper>
+
+
+          </Stack>
+        </Grid>
+      </Grid>
+    </PageLayout>
   );
 }
+
 
 export default TripDay;
