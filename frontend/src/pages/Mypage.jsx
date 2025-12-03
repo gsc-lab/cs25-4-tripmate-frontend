@@ -18,16 +18,16 @@ function Mypage() {
 
   async function tripsList() {
     try {
-      const req = await axios.get("http://localhost:8080/api/v1/trips", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const req = await axios.get("http://localhost:8080/api/v1/trips", 
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
 
       console.log("작성된 글 불러오기 성공", req.data.data);
       const items = req.data.data;
       setTripList(Array.isArray(items) ? items : []);
 
     } catch (err) {
-      console.error(err);
+      
       const status = err.response?.status;
       if (status === 401) {
         alert("인증이 필요합니다.");
@@ -37,6 +37,7 @@ function Mypage() {
         alert("요청 데이터가 유효하지 않습니다.");
         return;
       }
+      console.error(err);
     }
   }
 
@@ -87,20 +88,22 @@ function Mypage() {
         return;
       }
     } catch (err) {
-      console.error(err);
+      
+      const status = err.response?.status;
 
-      if (err?.response?.status === 404) {
+      if (status === 404) {
         alert("해당 유저를 찾을 수 없습니다.");
         return;
       }
-      if (err?.response?.status === 422) {
+      if (status === 422) {
         alert("입력값이 유효하지 않습니다.");
         return;
       }
-      if (err?.response?.status === 401) {
+      if (status === 401) {
         alert("인증이 필요합니다.");
         return;
       }
+      console.error(err);
     }
   }
 
