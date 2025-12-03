@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Box,Typography } from "@mui/material"; 
+import { Box, Typography, Grid, Paper, Button, Stack, Chip, Divider } from "@mui/material"; 
 import { useLocation, useNavigate } from "react-router-dom";
 import { Wrapper } from "@googlemaps/react-wrapper";
 import axios from "axios";
@@ -31,15 +31,13 @@ function GoogleMap({ lat, lng }) {
   }, [lat, lng]);
 
   return (
-    <div style={{ display: "flex", gap: "16px", marginTop: "8px" }}>
-      <div style={{ width: "70%" }}>
-        <div
-          ref={mapRef}
-          id="map"
-          style={{ width: "100%", height: "600px" }}
-        />
-      </div>
-    </div>
+    <Box sx={{ width: "100%", height: "100%", mt: 1 }}>
+      <div
+        ref={mapRef}
+        id="map"
+        style={{ width: "100%", height: "100%", minHeight: "500px" }}
+      />
+    </Box>
   );
 }
 
@@ -176,71 +174,181 @@ function View() {
     };
     
     return (
-        <PageLayout
+      <PageLayout
         title="글 상세보기"
         actionLabel="마이페이지로"
         onAction={() => navigate("/mypage")}
-        >
-            <Box sx={{ p: 2 }}>
-                <Typography variant="h4" gutterBottom>
-                제목: {trip?.title}
+      >
+        <Grid container spacing={2} sx={{ mt: 1 }}>
+          <Grid item xs={12} md={8}>
+            <Paper
+              elevation={3}
+              sx={{
+                height: "100%",
+                borderRadius: 2,
+                overflow: "hidden",
+                display: "flex",
+                flexDirection: "column",
+              }}
+            >
+              <Box sx={{ p: 2, borderBottom: "1px solid", borderColor: "divider" }}>
+                <Typography variant="h5" gutterBottom sx={{width: "1200px", whiteSpace: "normal", overflowWrap: "break-word",}}>
+                  {trip?.title || "제목 없음"}
                 </Typography>
-                <Typography sx={{ mb: 1 }}>
-                지역: {region_name}
+                <Typography variant="body2" sx={{ mb: 0.5 }}>
+                  <strong>지역:</strong> {region_name || "-"}
                 </Typography>
-                <Typography sx={{ mb: 1 }}>
-                여행 날짜: {trip?.start_date} ~ {trip?.end_date}
+                <Typography variant="body2" sx={{ mb: 0.5 }}>
+                  <strong>여행 날짜:</strong>{" "}
+                  {trip?.start_date} ~ {trip?.end_date}
                 </Typography>
-                <Typography sx={{ whiteSpace: "pre-line" }}>
-                {trip?.memo}
-                </Typography>
-            </Box>
-            
-            <Wrapper apiKey={import.meta.env.VITE_GOOGLE_MAPS_KEY}>
-                <GoogleMap lat={lat} lng={lng} />
-            </Wrapper>
-            
-            <ul>
-            {days.map((day) => {
-                return (
-                <li key={day.trip_day_id}>
-                    <strong>Day {day.day_no}</strong>
-                    <button
-                    onClick={() => {
-                        setSelectedDayNo(day.day_no);
-                        getSchedule(day.day_no);
-                    }}
+                {trip?.memo && (
+                  <Typography
+                    variant="body2"
+                    sx={{ whiteSpace: "pre-line", mt: 1 }}
+                  >
+                    {trip.memo}
+                  </Typography>
+                )}
+              </Box>
+
+              <Box sx={{ flex: 1 }}>
+                <Wrapper apiKey={import.meta.env.VITE_GOOGLE_MAPS_KEY}>
+                  <GoogleMap lat={lat} lng={lng} />
+                </Wrapper>
+              </Box>
+            </Paper>
+          </Grid>
+
+          <Grid item xs={12} md={4}>
+            <Paper
+              elevation={2}
+              sx={{
+                height: "100%",
+                borderRadius: 2,
+                p: 2,
+                display: "flex",
+                flexDirection: "column",
+              }}
+            >
+              <Typography variant="h6" gutterBottom>
+                일자별 일정
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                Day를 선택하면 해당 일차의 일정이 아래에 표시됩니다.
+              </Typography>
+
+              <Divider sx={{ mb: 1 }} />
+
+              <Box sx={{ flex: 1, overflowY: "auto" }}>
+                <Stack spacing={2}>
+                  {days.map((day) => (
+                    <Box
+                      key={day.trip_day_id}
+                      sx={{
+                        borderRadius: 2,
+                        border: "1px solid",
+                        borderColor:
+                          selectedDayNo === day.day_no ? "primary.main" : "grey.300",
+                        p: 1.5,
+                        bgcolor:
+                          selectedDayNo === day.day_no ? "grey.50" : "background.paper",
+                      }}
                     >
-                    일정 보기
-                    </button>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                          mb: 1,
+                          gap: 1,
+                        }}
+                      >
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                          <Chip
+                            label={`Day ${day.day_no}`}
+                            color="primary"
+                            size="small"
+                          />
+                          <Typography variant="body2" color="text.secondary">
+                            메모: {day.memo || "메모 없음"}
+                          </Typography>
+                        </Box>
+                        <Button
+                          size="small"
+                          variant={
+                            selectedDayNo === day.day_no ? "contained" : "outlined"
+                          }
+                          onClick={() => {
+                            setSelectedDayNo(day.day_no);
+                            getSchedule(day.day_no);
+                          }}
+                        >
+                          일정 보기
+                        </Button>
+                      </Box>
 
-                    {selectedDayNo === day.day_no && (
-                    <ul>
-                        {scheduleItems.map((item) => (
-                        <li key={item.schedule_item_id}>
-                            {item.seq_no}.{" "}
-                            <span
-                            onClick={() => checkLocationUnit(item.place_id)}
-                            style={{ cursor: "pointer", textDecoration: "underline" }}
+                      {selectedDayNo === day.day_no && (
+                        <Box sx={{ mt: 1 }}>
+                          {scheduleItems.length === 0 ? (
+                            <Typography
+                              variant="body2"
+                              color="text.secondary"
                             >
-                            {item.place_name && `[${item.place_name}] `}
-                            </span>
-                            {item.memo ?? "(메모 없음)"}
-                            {item.visit_time && ` (${item.visit_time})`}
-                        </li>
-                        ))}
-                    </ul>
-                    )}
+                              등록된 일정이 없습니다.
+                            </Typography>
+                          ) : (
+                            <Stack spacing={1}>
+                              {scheduleItems.map((item) => (
+                                <Box
+                                  key={item.schedule_item_id}
+                                  sx={{
+                                    p: 1,
+                                    borderRadius: 1.5,
+                                    bgcolor: "grey.100",
+                                  }}
+                                >
+                                  <Typography variant="body2">
+                                    <strong>{item.seq_no}.</strong>{" "}
+                                    <span
+                                      onClick={() => checkLocationUnit(item.place_id)}
+                                      style={{
+                                        cursor: "pointer",
+                                        textDecoration: "underline",
+                                      }}
+                                    >
+                                      {item.place_name && `[${item.place_name}] `}
+                                    </span>
+                                    {item.memo ?? "(메모 없음)"}
+                                  </Typography>
+                                  {item.visit_time && (
+                                    <Typography
+                                      variant="caption"
+                                      color="text.secondary"
+                                    >
+                                      방문 시간: {item.visit_time}
+                                    </Typography>
+                                  )}
+                                </Box>
+                              ))}
+                            </Stack>
+                          )}
+                        </Box>
+                      )}
+                    </Box>
+                  ))}
 
-                    <div>메모: {day.memo}</div>
-                </li>
-                );
-            })}
-            </ul>
-
-        </PageLayout>
-
-        
+                  {days.length === 0 && (
+                    <Typography variant="body2" color="text.secondary">
+                      등록된 일차가 없습니다.
+                    </Typography>
+                  )}
+                </Stack>
+              </Box>
+            </Paper>
+          </Grid>
+        </Grid>
+      </PageLayout>
     );
 }
 
