@@ -61,7 +61,7 @@ function GoogleMap({ setPlace_Id }) {
             lng: point.lng
           }
 
-          const req2 = await axios.post("http://210.101.236.165:8000/api/v1/places/from-external", inputValue,
+          const reqForSave = await axios.post("http://210.101.236.165:8000/api/v1/places/from-external", inputValue,
             { headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" } }
           );
 
