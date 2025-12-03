@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Box, Button, Typography, Modal, TextField } from "@mui/material";
+import { Box, Button, Typography, Modal, TextField, Pagination, Stack } from "@mui/material";
 import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import PageLayout from "../components/PageLayout";
@@ -13,12 +13,20 @@ function Mypage() {
   const [regionId, setRegionId] = useState(null);
   const [tripList, setTripList] = useState([]);
   const [user, setUser] = useState([]);
+  const [pagination, setPagination] = useState({
+    current_page: 1,
+    last_page: 1,
+    total: 0,
+  });
 
   console.log(tripList);
   useEffect(() => {
-    tripsList();
     userInfo();
   }, []);
+
+  useEffect(() => {
+    tripsList();
+  }, [page, size, sort, regionId]);
 
   const userInfo = async () => {
     try {
@@ -106,25 +114,22 @@ function Mypage() {
   };
 
   async function tripsList() {
-
     const inputValue = {
-      page: page, 
-      size: size, 
-      sort: sort, 
+      page: page,
+      size: size,
+      sort: sort,
       region_id: regionId
     }
-
     try {
-      const req = await axios.get("http://localhost:8080/api/v1/trips", 
+      const req = await axios.get("http://localhost:8080/api/v1/trips",
         { params: inputValue, headers: { Authorization: `Bearer ${token}`} }
       )
-
       console.log("작성된 글 불러오기 성공", req.data.data);
-      setTripList(req.data.data);
-      
+      const { items, pagination } = req.data.data;
+      setTripList(items || []);
+      setPagination(pagination);
     } catch(err) {
       const status = err.response?.status;
-
       if (status === 401) {
         alert("인증이 필요합니다.");
         return;
@@ -191,31 +196,41 @@ function Mypage() {
           {tripList.length === 0 ? (
             <Typography sx={{ textAlign: "center", color: "#666" }}>
               생성된 일정이 없습니다.
-              </Typography>
-              ) : (
-                tripList.map((item) => (
-                <Typography
-                  key={item.id}
-                  sx={{
-                    fontSize: 18,
-                    mb: 1,
-                    textAlign: "center",
-                  }}
-                >
-                  <button onClick={() => delTrip(item.trip_id)}>x</button>
-                  <Link 
-                    to="/viewpage"
-                    state={{ tripId: item.trip_id , regionName: item.region_name }}
-                    style={{ textDecoration: "none", color: "inherit" }} 
+            </Typography>
+          ) : (
+            <>
+              <Stack spacing={1}>
+                {tripList.map((item) => (
+                  <Typography
+                    key={item.trip_id}
+                    sx={{
+                      fontSize: 18,
+                      textAlign: "center",
+                    }}
                   >
-                    {item.title}
-                  </Link>
-                  
-                </Typography>
-                  )
-                )
-              )
-              }
+                    <button onClick={() => delTrip(item.trip_id)}>x</button>
+                    <Link
+                      to="/viewpage"
+                      state={{ tripId: item.trip_id, regionName: item.region_name }}
+                      style={{ textDecoration: "none", color: "inherit" }}
+                    >
+                      {item.title}
+                    </Link>
+                  </Typography>
+                ))}
+              </Stack>
+
+              <Box sx={{ mt: 2, display: "flex", justifyContent: "center" }}>
+                <Pagination
+                  count={pagination.last_page}
+                  page={page}
+                  onChange={(_, value) => setPage(value)}
+                  color="primary"
+                  shape="rounded"
+                />
+              </Box>
+            </>
+          )}
         </Box>
 
         <Box
