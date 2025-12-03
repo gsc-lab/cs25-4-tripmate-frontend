@@ -122,7 +122,7 @@ function Mypage() {
 
       console.log("작성된 글 불러오기 성공", req.data.data);
       setTripList(req.data.data);
-      
+    } catch (err) {
       const status = err.response?.status;
 
       if (status === 404) {
