@@ -18,8 +18,8 @@ function Mypage() {
 
   async function tripsList() {
     try {
-      const req = await axios.get("http://210.101.236.165:8000/api/v1/users/me", 
-        { headers: { Authorization: `Bearer ${token}`} }
+      const req = await axios.get("http://210.101.236.165:8000/api/v1/trips", 
+        { headers: { Authorization: `Bearer ${token}` } }
       );
 
       console.log("작성된 글 불러오기 성공", req.data.data);
@@ -99,33 +99,6 @@ function Mypage() {
         alert("입력값이 유효하지 않습니다.");
         return;
       }
-      if (err?.response?.status === 401) {
-        alert("인증이 필요합니다.");
-        return;
-      }
-    }
-  };
-
-  async function tripsList() {
-
-    const inputValue = {
-      page: page, 
-      size: size, 
-      sort: sort, 
-      region_id: regionId
-    }
-
-    try {
-      const req = await axios.get("http://210.101.236.165:8000/api/v1/trips", 
-        { params: inputValue, headers: { Authorization: `Bearer ${token}`} }
-      )
-
-      console.log("작성된 글 불러오기 성공", req.data.data);
-      setTripList(req.data.data);
-      
-    } catch(err) {
-      const status = err.response?.status;
-
       if (status === 401) {
         alert("인증이 필요합니다.");
         return;
