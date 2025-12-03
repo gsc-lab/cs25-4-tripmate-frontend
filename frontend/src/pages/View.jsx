@@ -181,7 +181,17 @@ function View() {
       >
         <Button
           variant="contained"
-          onClick={() => navigate("/trip")}
+          onClick={() => navigate("/edittrip", {
+            state: {
+              tripId: trip.trip_id,
+              title: trip.title,
+              regionId: trip.region_id,
+              regionName: trip.region_name,
+              startDate: trip.start_date,
+              endDate: trip.end_date
+            }
+          })
+        }
           sx={{
             background: "#7467feff",
             color: "#ffffffff",
