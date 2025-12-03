@@ -179,6 +179,23 @@ function View() {
         actionLabel="마이페이지로"
         onAction={() => navigate("/mypage")}
       >
+        <Button
+          variant="contained"
+          onClick={() => navigate("/trip")}
+          sx={{
+            background: "#7467feff",
+            color: "#ffffffff",
+            fontWeight: 600,
+            boxShadow: "none",
+            border: "1px solid #d0d0d0",
+            "&:hover": {
+              background: "#f7f7f7",
+            },
+          }}
+        >
+          게시글 수정
+        </Button>
+
         <Grid container spacing={2} sx={{ mt: 1 }}>
           <Grid item xs={12} md={8}>
             <Paper
