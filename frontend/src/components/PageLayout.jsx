@@ -45,7 +45,7 @@ function PageLayout({
         <Paper
           sx={{
             width: "100%",
-            maxWidth: "1000px",
+            maxWidth: "1800px",
             minHeight: "400px",
             bgcolor: "#e0e0e0",
             p: 6,
