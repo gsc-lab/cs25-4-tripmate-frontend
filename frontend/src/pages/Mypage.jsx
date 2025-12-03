@@ -1,48 +1,47 @@
 import { useState, useEffect } from "react";
-import { Box, Button, Typography, Modal, TextField } from "@mui/material";
-import { useNavigate, Link } from "react-router-dom";
+import { Box, Button, Typography, Modal, TextField, Pagination, Stack } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import PageLayout from "../components/PageLayout";
 
 function Mypage() {
   const navigate = useNavigate();
   const token = localStorage.getItem("access_token");
-  const [page, setPage] = useState(1);
-  const [size] = useState(20);
-  const [sort, setSort] = useState(null);
-  const [regionId, setRegionId] = useState(null);
-  const [tripList, setTripList] = useState([]);
-  const [user, setUser] = useState([]);
 
-  console.log(tripList);
+  const [tripList, setTripList] = useState([]);
+  const [page, setPage] = useState(1);
+
+  // 여행 일정 목록 불러오기
   useEffect(() => {
     tripsList();
     userInfo();
   }, []);
 
-  const userInfo = async () => {
+  async function tripsList() {
     try {
-      const req = await axios.get("http://localhost:8080/api/v1/users/me", 
-        { headers: { Authorization: `Bearer ${token}`} }
+      const req = await axios.get("http://localhost:8080/api/v1/trips", 
+        { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      console.log("사용자 정보 불러오기 성공", req.data.data);
-      setUser(req.data.data);
+      console.log("작성된 글 불러오기 성공", req.data.data);
+      const items = req.data.data;
+      setTripList(Array.isArray(items) ? items : []);
 
-    } catch(err) {
+    } catch (err) {
+      
       const status = err.response?.status;
-
       if (status === 401) {
         alert("인증이 필요합니다.");
         return;
       }
-      if (status === 404) {
-        alert("해당 유저를 찾을 수 없습니다.");
+      if (status === 422) {
+        alert("요청 데이터가 유효하지 않습니다.");
         return;
       }
+      console.error(err);
     }
   }
-  
+
   // 회원탈퇴 모달 상태
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [deletePassword, setDeletePassword] = useState("");
@@ -124,17 +123,21 @@ function Mypage() {
       console.log("작성된 글 불러오기 성공", req.data.data);
       setTripList(req.data.data);
       
-    } catch(err) {
       const status = err.response?.status;
 
+      if (status === 404) {
+        alert("해당 유저를 찾을 수 없습니다.");
+        return;
+      }
+      if (status === 422) {
+        alert("입력값이 유효하지 않습니다.");
+        return;
+      }
       if (status === 401) {
         alert("인증이 필요합니다.");
         return;
       }
-      if (status === 422) {
-        alert("요청 데이터가 유효하지 않습니다.");
-        return;
-      }
+      console.error(err);
     }
   };
 
@@ -145,6 +148,7 @@ function Mypage() {
       );
 
       if (req.status === 204) {
+        console.log("게시글 삭제 완료");
         await tripsList();
       }
 
@@ -163,10 +167,18 @@ function Mypage() {
         alert("리소스를 찾을 수 없습니다.");
         return;
       }
-
-
     }
   };
+
+  const perPage = 5;
+  const totalPages = Math.max(1, Math.ceil(tripList.length / perPage));
+  const paginatedTrips = tripList.slice((page - 1) * perPage, page * perPage);
+
+  useEffect(() => {
+    if (page > totalPages) {
+      setPage(totalPages);   
+    }
+  }, [page, totalPages]);
 
   return (
     <>
@@ -189,36 +201,93 @@ function Mypage() {
           생성된 여행 일정
         </Typography>
 
-        <Box sx={{ mt: 2 }}>
-          {tripList.length === 0 ? (
-            <Typography sx={{ textAlign: "center", color: "#666" }}>
-              생성된 일정이 없습니다.
-              </Typography>
-              ) : (
-                tripList.map((item) => (
-                <Typography
-                  key={item.id}
+      <Box sx={{ mt: 3 }}>
+        {paginatedTrips.length === 0 ? (
+          <Typography sx={{ textAlign: "center", color: "#666" }}>
+            생성된 여행 일정이 없습니다.
+          </Typography>
+        ) : (
+          <>
+            <Stack spacing={1.5}>
+              {paginatedTrips.map((trip) => (
+                <Box
+                  key={trip.trip_id}
                   sx={{
-                    fontSize: 18,
-                    mb: 1,
-                    textAlign: "center",
+                    p: 1.5,
+                    borderRadius: 2,
+                    bgcolor: "#ffffff",
+                    boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
                   }}
                 >
-                  <button onClick={() => delTrip(item.trip_id)}>x</button>
-                  <Link 
-                    to="/viewpage"
-                    state={{ tripId: item.trip_id , regionName: item.region_name }}
-                    style={{ textDecoration: "none", color: "inherit" }} 
+                    <Box sx={{ flexGrow: 1, minWidth: 0 }}>
+                      <Typography
+                        sx={{
+                          fontWeight: 600,
+                          fontSize: 16,
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                        }}
+                      >
+                        {trip.title}
+                      </Typography>
+                    <Typography
+                      variant="body2"
+                      sx={{ color: "text.secondary", mt: 0.5 }}
+                    >
+                      {trip.region_name} | {trip.start_date} ~ {trip.end_date}
+                    </Typography>
+                  </Box>
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    onClick={() =>
+                      navigate("/viewpage", {
+                        state: {
+                          tripId: trip.trip_id,
+                          regionName: trip.region_name,
+                        },
+                      })
+                    }
+                    sx={{ whiteSpace: "nowrap" }}
                   >
-                    {item.title}
-                  </Link>
-                  
-                </Typography>
-                  )
-                )
-              )
-              }
-        </Box>
+                    상세보기
+                  </Button>
+
+                  <Button
+                    variant="contained"
+                    size="small"
+                    onClick={() => delTrip(trip.trip_id)}
+                    sx={{
+                      background: "#ff4d4d",
+                      color: "#fff",
+                      fontWeight: 600,
+                      "&:hover": {
+                        background: "#e04444",
+                      },
+                    }}
+                  >
+                    X
+                  </Button>
+                </Box>
+              ))}
+            </Stack>
+
+            <Box sx={{ mt: 2, display: "flex", justifyContent: "center" }}>
+              <Pagination
+                count={totalPages}
+                page={page}
+                onChange={(_, value) => setPage(value)}
+                color="primary"
+                shape="rounded"
+              />
+            </Box>
+          </>
+        )}
+      </Box>
 
         <Box
           sx={{
