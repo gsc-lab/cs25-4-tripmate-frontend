@@ -66,7 +66,7 @@ function Mypage() {
     } catch (err) {
       console.error(err);
     }
-  }
+  };
 
   // 회원탈퇴
   async function Del_User_func() {
@@ -105,11 +105,46 @@ function Mypage() {
       }
       console.error(err);
     }
-  }
+  };
 
-  const perPage = 5; 
+  async function delTrip(trip_id) {
+    try{
+      const req = await axios.delete(`http://localhost:8080/api/v1/trips/${trip_id}`,
+        { headers: { Authorization: `Bearer ${token}`} }
+      );
+
+      if (req.status === 204) {
+        console.log("게시글 삭제 완료");
+        await tripsList();
+      }
+
+    } catch(err) {
+      const status = err.response?.status;
+
+      if (status === 401) {
+        alert("인증이 필요합니다.");
+        return;
+      }
+      if (status === 403) {
+        alert("접근 권한이 없습니다.");
+        return;
+      }
+      if (status === 404) {
+        alert("리소스를 찾을 수 없습니다.");
+        return;
+      }
+    }
+  };
+
+  const perPage = 5;
   const totalPages = Math.max(1, Math.ceil(tripList.length / perPage));
   const paginatedTrips = tripList.slice((page - 1) * perPage, page * perPage);
+
+  useEffect(() => {
+    if (page > totalPages) {
+      setPage(totalPages);   
+    }
+  }, [page, totalPages]);
 
   return (
     <PageLayout
@@ -148,18 +183,18 @@ function Mypage() {
                     justifyContent: "space-between",
                   }}
                 >
-                  <Box sx={{ mr: 2, minWidth: 0 }}>
-                    <Typography
-                      sx={{
-                        fontWeight: 600,
-                        fontSize: 16,
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                      }}
-                    >
-                      {trip.title}
-                    </Typography>
+                    <Box sx={{ flexGrow: 1, minWidth: 0 }}>
+                      <Typography
+                        sx={{
+                          fontWeight: 600,
+                          fontSize: 16,
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                        }}
+                      >
+                        {trip.title}
+                      </Typography>
                     <Typography
                       variant="body2"
                       sx={{ color: "text.secondary", mt: 0.5 }}
@@ -181,6 +216,22 @@ function Mypage() {
                     sx={{ whiteSpace: "nowrap" }}
                   >
                     상세보기
+                  </Button>
+
+                  <Button
+                    variant="contained"
+                    size="small"
+                    onClick={() => delTrip(trip.trip_id)}
+                    sx={{
+                      background: "#ff4d4d",
+                      color: "#fff",
+                      fontWeight: 600,
+                      "&:hover": {
+                        background: "#e04444",
+                      },
+                    }}
+                  >
+                    X
                   </Button>
                 </Box>
               ))}
