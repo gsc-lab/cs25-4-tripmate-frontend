@@ -5,7 +5,7 @@ import axios from "axios";
 
 import PageLayout from "../components/PageLayout";
 import { Box, Grid, Paper, Typography, Button, TextField, Stack, IconButton, Divider, Chip } from "@mui/material";
-import { Delete, Edit, Add } from "@mui/icons-material";
+import { Delete, Edit, Add, Close } from "@mui/icons-material";
 
 function GoogleMap({ setPlace_Id }) {
   const token = localStorage.getItem("access_token");
@@ -306,7 +306,7 @@ function TripDay() {
     const inputValue = {
       place_id: place_id,
       seq_no: scheNo,
-      visit_time: null,
+      visit_time: scheTime,
       memo: scheMemo || null,
     };
 
@@ -640,9 +640,27 @@ function TripDay() {
                   bgcolor: "grey.50",
                 }}
               >
-                <Typography variant="subtitle1" gutterBottom>
-                  Day {selectedDayNo} 에 추가할 일정
-                </Typography>
+                <Stack
+                  direction="row"
+                  alignItems="center"
+                  justifyContent="space-between"
+                  sx={{ mb: 1.5 }}  
+                >
+                  <Typography variant="subtitle1">
+                    Day {selectedDayNo} 에 추가할 일정
+                  </Typography>
+                  <IconButton
+                    size="small"
+                    onClick={() => {
+                      setPlaceView(null);
+                      setScheNo(1);
+                      setScheTime("");
+                      setScheMemo("");
+                    }}
+                  >
+                    <Close fontSize="small" />
+                  </IconButton>
+                </Stack>
                 <Typography variant="body2">
                   <strong>장소 이름:</strong> {placeView.name}
                 </Typography>
@@ -681,7 +699,7 @@ function TripDay() {
                     startIcon={<Add />}
                     onClick={addSchedule}
                   >
-                    일정 추가
+                    Day {selectedDayNo} 에 일정 추가
                   </Button>
                 </Stack>
               </Paper>
