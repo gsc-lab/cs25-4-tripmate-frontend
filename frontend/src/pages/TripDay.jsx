@@ -147,6 +147,7 @@ function TripDay() {
   const [scheduleItems, setScheduleItems] = useState([]);
   const [selectedDayNo, setSelectedDayNo] = useState(null);
 
+
   useEffect(() => {
     getDays();
   }, []);
@@ -280,7 +281,55 @@ function TripDay() {
       }
       console.log(err.response);
     }
-  }
+  };
+
+  const relocationDates = async (fromDayNo, toDayNo) => {
+    const orders = days.map((day) => {
+      if (day.day_no === fromDayNo) {
+        return { day_no: day.day_no, new_day_no: toDayNo };
+      }
+      if (day.day_no === toDayNo) {
+        return { day_no: day.day_no, new_day_no: fromDayNo };
+      }
+      return { day_no: day.day_no, new_day_no: day.day_no };
+    });
+
+    const inputValue = { orders };
+    console.log("서버로 보내는 값:", inputValue);
+    try {
+      const req = await axios.post(`http://localhost:8080/api/v1/trips/${trip_id}/days:reorder`, inputValue, 
+        { headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" } }
+      );
+
+      console.log("서버로 부터 받은 값: ", req.data);
+      await getDays();
+
+    }  catch (err) {
+      const status = err.response?.status;
+
+      if (status === 401) {
+        alert("인증이 필요합니다.");
+        return;
+      }
+      if (status === 403) {
+        alert("접근 권한이 없습니다.");
+        return;
+      }
+      if (status === 404) {
+        alert("리소스를 찾을 수 없습니다.");
+        return;
+      }
+      if (status === 409) {
+        alert("요청이 충돌되었습니다.");
+        return;
+      }
+      if (status === 422) {
+        alert("요청 데이터가 유효하지 않습니다.");
+        return;
+      }
+      console.log(err.response);
+    }
+  };
   
   const selectPlaceView = async () => {
     try {
@@ -325,6 +374,7 @@ function TripDay() {
         setScheTime("");
         setScheMemo("");
       }
+      await getDays();
     } catch (err) {
       const status = err.response?.status;
 
@@ -451,6 +501,46 @@ function TripDay() {
     }
   };
 
+  const relocationScheItems = async (targetDayNo, itemId, newSeqNo) => {
+    const inputValue = { item_id: itemId, new_seq_no: newSeqNo };
+    console.log("서버로 주는 값: ", inputValue);
+
+    try {
+      const req = await axios.post(`http://localhost:8080/api/v1/trips/${trip_id}/days/${targetDayNo}/items:reorder`, inputValue,
+        { headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" } }
+      );
+
+      if (req.status === 200) {
+        console.log("스케줄 재정렬 성공:", req.data);
+        await getSchedule(targetDayNo);
+      }
+    } catch (err) {
+      const status = err.response?.status;
+
+      if (status === 401) {
+        alert("인증이 필요합니다.");
+        return;
+      }
+      if (status === 403) {
+        alert("접근 권한이 없습니다.");
+        return;
+      }
+      if (status === 404) {
+        alert("리소스를 찾을 수 없습니다.");
+        return;
+      }
+      if (status === 409) {
+        alert("요청이 충돌되었습니다.");
+        return;
+      }
+      if (status === 422) {
+        alert("요청 데이터가 유효하지 않습니다.");
+        return;
+      }
+      console.log(err.response);
+    }
+  };
+
   return (
     <PageLayout
       title="여행 스케줄 짜기"
@@ -517,6 +607,29 @@ function TripDay() {
                       spacing={1}
                     >
                       <Stack direction="row" spacing={1} alignItems="center">
+                        <IconButton
+                          size="small"
+                          color="error"
+                          onClick={() => {
+                            if (day.day_no > 1) {
+                              relocationDates(day.day_no, day.day_no - 1);
+                            }
+                          }}
+                        >
+                          ⬆️
+                        </IconButton>
+
+                        <IconButton
+                          size="small"
+                          color="error"
+                          onClick={() => {
+                            relocationDates(day.day_no, day.day_no + 1);
+                          }}
+                        >
+                          ⬇️
+                        </IconButton>
+                      </Stack>
+                      <Stack direction="row" spacing={1} alignItems="center">
                         <Chip
                           label={`Day ${day.day_no}`}
                           color="primary"
@@ -579,6 +692,27 @@ function TripDay() {
                               </Box>
 
                               <Stack direction="row" spacing={0.5}>
+                                <IconButton
+                                  size="small"
+                                  onClick={() => {
+                                    if (item.seq_no > 1) {
+                                      relocationScheItems(day.day_no, item.schedule_item_id, item.seq_no - 1);
+                                    }
+                                  }}
+                                >
+                                  ⬆️
+                                </IconButton>
+
+                                <IconButton
+                                  size="small"
+                                  onClick={() => {
+                                    if (item.seq_no < scheduleItems.length) {
+                                      relocationScheItems(day.day_no, item.schedule_item_id, item.seq_no + 1);
+                                    }
+                                  }}
+                                >
+                                  ⬇️
+                                </IconButton>
                                 <IconButton
                                   size="small"
                                   onClick={() =>
