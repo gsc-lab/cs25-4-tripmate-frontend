@@ -7,7 +7,7 @@ import Trip from "./pages/Trip";
 import View from "./pages/View";
 import Trip from "./pages/Trip";
 import TripDay from "./pages/TripDay";
-// import EditTrip from "./pages/EditTrip";
+import EditTrip from "./pages/EditTrip";
 
 
 function App() {
@@ -23,7 +23,7 @@ function App() {
         <Route path="/regions" element={<Regions />} />
         <Route path="/trip" element={<Trip />} />
         <Route path="/tripday" element={<TripDay />} />
-        {/* <Route path="/edittrip" element={<EditTrip />} /> */}
+        <Route path="/edittrip" element={<EditTrip />} />
       </Routes>
     </Router>
     </>
