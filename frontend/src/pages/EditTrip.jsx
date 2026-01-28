@@ -61,7 +61,7 @@ function EditTrip() {
         const input_value = { country, query };
 
         try {
-            const res = await axios.get("http://localhost:8080/api/v1/regions", {
+            const res = await axios.get("http://210.101.236.165:8000/api/v1/regions", {
                 params: input_value,
                 headers: { Accept: "application/json" },
             });
@@ -107,7 +107,7 @@ function EditTrip() {
             end_date: endDate.format("YYYY-MM-DD") }
 
         try {
-            const req = await axios.patch(`http://localhost:8080/api/v1/trips/${tripId}`, inputValue,
+            const req = await axios.patch(`http://210.101.236.165:8000/api/v1/trips/${tripId}`, inputValue,
                 { headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" } }
             );
             
